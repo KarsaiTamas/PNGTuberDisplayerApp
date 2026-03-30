@@ -1,0 +1,132 @@
+[gd_scene format=3 uid="uid://dgtf0dbc46vwh"]
+
+[ext_resource type="Texture2D" uid="uid://dcinfsgodjelv" path="res://Sprites/missingImageInPNGTuberApp.png" id="1_21wg3"]
+[ext_resource type="Theme" uid="uid://bljk52el3dsxo" path="res://defaultTheme.tres" id="2_ikjtb"]
+[ext_resource type="Script" uid="uid://n57gvwr6c5yr" path="res://Scripts/AnimUI.cs" id="2_vr5sd"]
+[ext_resource type="Texture2D" uid="uid://d0h8oktr1gffb" path="res://Sprites/TrashIcon.png" id="3_cclri"]
+
+[node name="CharacterAnimUI" type="PanelContainer" unique_id=495500619]
+theme = ExtResource("2_ikjtb")
+script = ExtResource("2_vr5sd")
+
+[node name="VC" type="VBoxContainer" parent="." unique_id=1777604833]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VC" unique_id=621541787]
+layout_mode = 2
+
+[node name="MCAnimChange" type="MarginContainer" parent="VC/HBoxContainer" unique_id=1811722860]
+layout_mode = 2
+size_flags_horizontal = 0
+
+[node name="Button" type="Button" parent="VC/HBoxContainer/MCAnimChange" unique_id=2066814905]
+custom_minimum_size = Vector2(130, 130)
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="TextureRect" type="TextureRect" parent="VC/HBoxContainer/MCAnimChange/Button" unique_id=1116298729]
+modulate = Color(1, 1, 1, 0.78431374)
+custom_minimum_size = Vector2(128, 128)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_21wg3")
+expand_mode = 1
+
+[node name="Label" type="Label" parent="VC/HBoxContainer/MCAnimChange/Button" unique_id=1407044930]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -61.0
+offset_top = -23.0
+offset_right = 61.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "Click To Change"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Remove Animation" type="MarginContainer" parent="VC/HBoxContainer" unique_id=255885060]
+layout_mode = 2
+size_flags_vertical = 0
+
+[node name="Button" type="Button" parent="VC/HBoxContainer/Remove Animation" unique_id=1682339845]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+
+[node name="TextureRect" type="TextureRect" parent="VC/HBoxContainer/Remove Animation/Button" unique_id=30579647]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("3_cclri")
+expand_mode = 1
+
+[node name="MCAnimName" type="MarginContainer" parent="VC" unique_id=1610558416]
+layout_mode = 2
+
+[node name="LineEdit" type="LineEdit" parent="VC/MCAnimName" unique_id=1166976833]
+layout_mode = 2
+placeholder_text = "Animation name"
+
+[node name="HC" type="HBoxContainer" parent="VC" unique_id=2006992196]
+layout_mode = 2
+
+[node name="VC" type="VBoxContainer" parent="VC/HC" unique_id=32767179]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="VC/HC/VC" unique_id=1036014361]
+layout_mode = 2
+text = "Frame duration: "
+
+[node name="AnimLengthSP" type="SpinBox" parent="VC/HC/VC" unique_id=736441345]
+layout_mode = 2
+min_value = 0.01
+step = 0.1
+value = 1.01
+
+[node name="VC2" type="VBoxContainer" parent="VC/HC" unique_id=941224629]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="VC/HC/VC2" unique_id=1489589204]
+layout_mode = 2
+text = "Frame count:"
+
+[node name="Anim CountSP" type="SpinBox" parent="VC/HC/VC2" unique_id=1480043249]
+layout_mode = 2
+min_value = 1.0
+value = 1.0
+
+[node name="MCAnimAction" type="MarginContainer" parent="VC" unique_id=1298232513]
+layout_mode = 2
+theme = ExtResource("2_ikjtb")
+
+[node name="OptionButton" type="OptionButton" parent="VC/MCAnimAction" unique_id=2036272067]
+layout_mode = 2
+selected = 0
+item_count = 2
+popup/item_0/text = "Key Action"
+popup/item_0/id = 0
+popup/item_1/text = "Database Action"
+popup/item_1/id = 1
+
+[node name="MCActionName" type="MarginContainer" parent="VC" unique_id=1187447513]
+layout_mode = 2
+theme = ExtResource("2_ikjtb")
+
+[node name="LineEdit" type="LineEdit" parent="VC/MCActionName" unique_id=1108533218]
+layout_mode = 2
+theme = ExtResource("2_ikjtb")
+placeholder_text = "key/Action name"

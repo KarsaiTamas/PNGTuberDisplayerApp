@@ -1,0 +1,755 @@
+[gd_scene format=3 uid="uid://beoqtxtlsjtfi"]
+
+[ext_resource type="Script" uid="uid://dryltr3q6b7kr" path="res://Scripts/ProgramHandler.cs" id="3_1iokl"]
+[ext_resource type="Script" uid="uid://ft73hyeowlmv" path="res://Scripts/TunDB.gd" id="3_g4clj"]
+[ext_resource type="Texture2D" uid="uid://cox44hsl2x1eo" path="res://Sprites/GearIcon.png" id="4_fqdf2"]
+[ext_resource type="Script" uid="uid://rdo7x2ebiy7m" path="res://Scripts/CharacterAnimsUI.cs" id="5_2213c"]
+[ext_resource type="PackedScene" uid="uid://rr3g8gl4nhv3" path="res://Scenes/PopupYN.tscn" id="5_fqdf2"]
+[ext_resource type="Theme" uid="uid://bljk52el3dsxo" path="res://defaultTheme.tres" id="6_1ub32"]
+[ext_resource type="Texture2D" uid="uid://bvjf8cukivra0" path="res://Sprites/PlusIcon.png" id="7_8ofck"]
+[ext_resource type="Texture2D" uid="uid://dcinfsgodjelv" path="res://Sprites/missingImageInPNGTuberApp.png" id="7_xni86"]
+[ext_resource type="PackedScene" uid="uid://lft2ah3ixoyl" path="res://Scenes/SpawnableScenes/OutfitButton.tscn" id="8_0yucn"]
+[ext_resource type="Texture2D" uid="uid://d0h8oktr1gffb" path="res://Sprites/TrashIcon.png" id="8_2213c"]
+[ext_resource type="Script" uid="uid://cjcqvsu4ockfo" path="res://Scripts/SimpleAnimUI.cs" id="10_n7agq"]
+[ext_resource type="Texture2D" uid="uid://dh8d83qgqdqbt" path="res://Sprites/XIcon.png" id="10_xsjf8"]
+[ext_resource type="Script" uid="uid://cby2vcbq0ldar" path="res://Scripts/ExistingAnimUI.cs" id="11_0yucn"]
+
+[node name="Control" type="Control" unique_id=1509499153]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("6_1ub32")
+script = ExtResource("3_1iokl")
+
+[node name="LoadedScene" type="Node" parent="." unique_id=1702028607]
+
+[node name="DB" type="Node" parent="." unique_id=141679024]
+script = ExtResource("3_g4clj")
+
+[node name="PC" type="PanelContainer" parent="." unique_id=890034148]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -40.0
+offset_bottom = 40.0
+grow_horizontal = 0
+
+[node name="VBC" type="VBoxContainer" parent="PC" unique_id=1100142086]
+layout_mode = 2
+
+[node name="SceneC" type="MarginContainer" parent="PC/VBC" unique_id=1808259833]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="Button" type="Button" parent="PC/VBC/SceneC" unique_id=2066332170]
+custom_minimum_size = Vector2(100, 50)
+layout_mode = 2
+tooltip_text = "Opens the scenes panel on the left of the screen"
+text = "Scenes"
+
+[node name="CharacterC" type="MarginContainer" parent="PC/VBC" unique_id=1235384464]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="Button" type="Button" parent="PC/VBC/CharacterC" unique_id=1710448425]
+custom_minimum_size = Vector2(100, 50)
+layout_mode = 2
+tooltip_text = "Opens the characters panel on the left of the screen"
+text = "Characters"
+
+[node name="SettingsP" type="PanelContainer" parent="." unique_id=907639053]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -100.0
+offset_top = -100.0
+grow_horizontal = 0
+grow_vertical = 0
+
+[node name="MarginContainer" type="MarginContainer" parent="SettingsP" unique_id=548355181]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="Button" type="Button" parent="SettingsP/MarginContainer" unique_id=734948185]
+layout_mode = 2
+
+[node name="TextureRect" type="TextureRect" parent="SettingsP/MarginContainer/Button" unique_id=793218737]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+tooltip_text = "Opens the settings menu"
+texture = ExtResource("4_fqdf2")
+expand_mode = 1
+
+[node name="ScenesP" type="Panel" parent="." unique_id=265749374]
+clip_contents = true
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 1
+anchors_preset = 9
+anchor_bottom = 1.0
+grow_vertical = 2
+
+[node name="VBC" type="VBoxContainer" parent="ScenesP" unique_id=2032011421]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PC" type="PanelContainer" parent="ScenesP/VBC" unique_id=2075937313]
+layout_mode = 2
+
+[node name="MC" type="MarginContainer" parent="ScenesP/VBC/PC" unique_id=1144647773]
+layout_mode = 2
+
+[node name="VBC" type="VBoxContainer" parent="ScenesP/VBC/PC/MC" unique_id=114186215]
+layout_mode = 2
+
+[node name="SceneLabel" type="MarginContainer" parent="ScenesP/VBC/PC/MC/VBC" unique_id=92388783]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="Label" type="Label" parent="ScenesP/VBC/PC/MC/VBC/SceneLabel" unique_id=469413713]
+layout_mode = 2
+text = "Scenes"
+horizontal_alignment = 1
+
+[node name="SceneName" type="MarginContainer" parent="ScenesP/VBC/PC/MC/VBC" unique_id=142818603]
+layout_mode = 2
+
+[node name="LineEdit" type="LineEdit" parent="ScenesP/VBC/PC/MC/VBC/SceneName" unique_id=815304693]
+custom_minimum_size = Vector2(160, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+placeholder_text = "Scene's name "
+max_length = 30
+
+[node name="SaveScene" type="MarginContainer" parent="ScenesP/VBC/PC/MC/VBC" unique_id=1264949700]
+layout_mode = 2
+
+[node name="Button" type="Button" parent="ScenesP/VBC/PC/MC/VBC/SaveScene" unique_id=1687599945]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+text = "Save"
+
+[node name="NewSceneB" type="MarginContainer" parent="ScenesP/VBC/PC/MC/VBC" unique_id=847982315]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="Button" type="Button" parent="ScenesP/VBC/PC/MC/VBC/NewSceneB" unique_id=2105255373]
+custom_minimum_size = Vector2(100, 50)
+layout_mode = 2
+tooltip_text = "Adds a new scene to the existing scenes below this button. "
+text = "Add New Scene "
+
+[node name="ScenesListHolder" type="PanelContainer" parent="ScenesP/VBC" unique_id=782451294]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="SC" type="ScrollContainer" parent="ScenesP/VBC/ScenesListHolder" unique_id=2075274623]
+custom_minimum_size = Vector2(0, 77.85)
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="ScenesCon" type="VBoxContainer" parent="ScenesP/VBC/ScenesListHolder/SC" unique_id=2023568234]
+layout_mode = 2
+
+[node name="CharactersP" type="Panel" parent="." unique_id=301910756]
+visible = false
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 1
+anchors_preset = 9
+anchor_bottom = 1.0
+offset_right = 200.0
+grow_vertical = 2
+
+[node name="VBC" type="VBoxContainer" parent="CharactersP" unique_id=508252183]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PC" type="PanelContainer" parent="CharactersP/VBC" unique_id=1082865690]
+layout_mode = 2
+
+[node name="MC" type="MarginContainer" parent="CharactersP/VBC/PC" unique_id=2121723077]
+layout_mode = 2
+
+[node name="VBC" type="VBoxContainer" parent="CharactersP/VBC/PC/MC" unique_id=957264816]
+layout_mode = 2
+
+[node name="CharactersLabel" type="MarginContainer" parent="CharactersP/VBC/PC/MC/VBC" unique_id=1272051918]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="Label" type="Label" parent="CharactersP/VBC/PC/MC/VBC/CharactersLabel" unique_id=1658469314]
+layout_mode = 2
+text = "Characters"
+horizontal_alignment = 1
+
+[node name="NewCharacterB" type="MarginContainer" parent="CharactersP/VBC/PC/MC/VBC" unique_id=666748951]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="Button" type="Button" parent="CharactersP/VBC/PC/MC/VBC/NewCharacterB" unique_id=1567101603]
+custom_minimum_size = Vector2(100, 50)
+layout_mode = 2
+text = "Add New Character "
+
+[node name="PC2" type="PanelContainer" parent="CharactersP/VBC" unique_id=38634175]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="SC" type="ScrollContainer" parent="CharactersP/VBC/PC2" unique_id=183379881]
+custom_minimum_size = Vector2(0, 77.85)
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="CharactersCon" type="VBoxContainer" parent="CharactersP/VBC/PC2/SC" unique_id=6855013]
+layout_mode = 2
+
+[node name="PopupYN" parent="." unique_id=1743660956 instance=ExtResource("5_fqdf2")]
+layout_mode = 1
+offset_left = -82.0
+offset_top = -49.0
+offset_right = 82.0
+offset_bottom = 49.0
+
+[node name="CharacterAnimations" type="Panel" parent="." unique_id=1602622679]
+clip_contents = true
+custom_minimum_size = Vector2(350, 0)
+layout_mode = 1
+anchors_preset = 9
+anchor_bottom = 1.0
+offset_left = 250.0
+offset_right = 600.0
+grow_vertical = 2
+script = ExtResource("5_2213c")
+
+[node name="HC" type="HBoxContainer" parent="CharacterAnimations" unique_id=1434383821]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+
+[node name="Outfits" type="PanelContainer" parent="CharacterAnimations/HC" unique_id=933576520]
+layout_mode = 2
+
+[node name="VC" type="VBoxContainer" parent="CharacterAnimations/HC/Outfits" unique_id=732050318]
+layout_mode = 2
+
+[node name="Add Outfit" type="MarginContainer" parent="CharacterAnimations/HC/Outfits/VC" unique_id=605181614]
+layout_mode = 2
+
+[node name="Button" type="Button" parent="CharacterAnimations/HC/Outfits/VC/Add Outfit" unique_id=344953371]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+
+[node name="TextureRect" type="TextureRect" parent="CharacterAnimations/HC/Outfits/VC/Add Outfit/Button" unique_id=1913973228]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+tooltip_text = "Adds an outfit to the current character"
+texture = ExtResource("7_8ofck")
+expand_mode = 1
+
+[node name="OutfitsHolder" type="PanelContainer" parent="CharacterAnimations/HC/Outfits/VC" unique_id=1362744930]
+custom_minimum_size = Vector2(0, 700)
+layout_mode = 2
+
+[node name="SC" type="ScrollContainer" parent="CharacterAnimations/HC/Outfits/VC/OutfitsHolder" unique_id=481957216]
+custom_minimum_size = Vector2(0, 77.85)
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="VC" type="VBoxContainer" parent="CharacterAnimations/HC/Outfits/VC/OutfitsHolder/SC" unique_id=625442725]
+layout_mode = 2
+
+[node name="OutfitButton" parent="CharacterAnimations/HC/Outfits/VC/OutfitsHolder/SC/VC" unique_id=2002619796 instance=ExtResource("8_0yucn")]
+layout_mode = 2
+
+[node name="VCAnims" type="VBoxContainer" parent="CharacterAnimations/HC" unique_id=490258174]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="HC" type="HBoxContainer" parent="CharacterAnimations/HC/VCAnims" unique_id=458437933]
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="Label" type="Label" parent="CharacterAnimations/HC/VCAnims/HC" unique_id=1386017841]
+layout_mode = 2
+text = "Character"
+horizontal_alignment = 1
+
+[node name="Remove Outfit" type="MarginContainer" parent="CharacterAnimations/HC/VCAnims/HC" unique_id=1675914191]
+layout_mode = 2
+
+[node name="Button" type="Button" parent="CharacterAnimations/HC/VCAnims/HC/Remove Outfit" unique_id=1849317277]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+
+[node name="TextureRect" type="TextureRect" parent="CharacterAnimations/HC/VCAnims/HC/Remove Outfit/Button" unique_id=311921400]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+tooltip_text = "Delete Outfit"
+texture = ExtResource("8_2213c")
+expand_mode = 1
+
+[node name="Closer" type="MarginContainer" parent="CharacterAnimations/HC/VCAnims/HC" unique_id=817411065]
+layout_mode = 2
+
+[node name="Button" type="Button" parent="CharacterAnimations/HC/VCAnims/HC/Closer" unique_id=1271257231]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+icon = ExtResource("10_xsjf8")
+expand_icon = true
+
+[node name="CharacterName" type="MarginContainer" parent="CharacterAnimations/HC/VCAnims" unique_id=1898280058]
+layout_mode = 2
+
+[node name="LineEdit" type="LineEdit" parent="CharacterAnimations/HC/VCAnims/CharacterName" unique_id=1932805748]
+layout_mode = 2
+placeholder_text = "Character's name"
+max_length = 100
+
+[node name="OutfitName" type="MarginContainer" parent="CharacterAnimations/HC/VCAnims" unique_id=1563695592]
+layout_mode = 2
+
+[node name="LineEdit" type="LineEdit" parent="CharacterAnimations/HC/VCAnims/OutfitName" unique_id=462805547]
+layout_mode = 2
+placeholder_text = "Outfit's name"
+max_length = 100
+
+[node name="VCAnimations" type="VBoxContainer" parent="CharacterAnimations/HC/VCAnims" unique_id=1854480036]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 3
+
+[node name="MCAnimLabel" type="MarginContainer" parent="CharacterAnimations/HC/VCAnims/VCAnimations" unique_id=1876285762]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+theme = ExtResource("6_1ub32")
+
+[node name="Label" type="Label" parent="CharacterAnimations/HC/VCAnims/VCAnimations/MCAnimLabel" unique_id=719817390]
+layout_mode = 2
+text = "Animations"
+horizontal_alignment = 1
+
+[node name="MCSaveOutfit" type="MarginContainer" parent="CharacterAnimations/HC/VCAnims/VCAnimations" unique_id=206500569]
+layout_mode = 2
+
+[node name="Button" type="Button" parent="CharacterAnimations/HC/VCAnims/VCAnimations/MCSaveOutfit" unique_id=735400342]
+layout_mode = 2
+tooltip_text = "Saves this outfit"
+text = "Save Character"
+
+[node name="MCAddNewAnim" type="MarginContainer" parent="CharacterAnimations/HC/VCAnims/VCAnimations" unique_id=1261235994]
+layout_mode = 2
+
+[node name="Button" type="Button" parent="CharacterAnimations/HC/VCAnims/VCAnimations/MCAddNewAnim" unique_id=430153747]
+layout_mode = 2
+tooltip_text = "Adds an animation for this outfit"
+text = "Add new animation"
+
+[node name="IsSimple" type="MarginContainer" parent="CharacterAnimations/HC/VCAnims/VCAnimations" unique_id=16864201]
+layout_mode = 2
+
+[node name="CheckButton" type="CheckButton" parent="CharacterAnimations/HC/VCAnims/VCAnimations/IsSimple" unique_id=1673927903]
+layout_mode = 2
+text = "Is Simple Outfit"
+
+[node name="CharacterType" type="MarginContainer" parent="CharacterAnimations/HC/VCAnims/VCAnimations" unique_id=1066056299]
+layout_mode = 2
+
+[node name="OptionButton" type="OptionButton" parent="CharacterAnimations/HC/VCAnims/VCAnimations/CharacterType" unique_id=50241246]
+custom_minimum_size = Vector2(0, 35)
+layout_mode = 2
+
+[node name="SimpleOutfit" type="MarginContainer" parent="CharacterAnimations/HC/VCAnims/VCAnimations" unique_id=989894872]
+layout_mode = 2
+script = ExtResource("10_n7agq")
+
+[node name="PanelContainer" type="PanelContainer" parent="CharacterAnimations/HC/VCAnims/VCAnimations/SimpleOutfit" unique_id=1022056768]
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 2
+
+[node name="MCAnimChange" type="MarginContainer" parent="CharacterAnimations/HC/VCAnims/VCAnimations/SimpleOutfit" unique_id=1987481578]
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="Button" type="Button" parent="CharacterAnimations/HC/VCAnims/VCAnimations/SimpleOutfit/MCAnimChange" unique_id=638498592]
+custom_minimum_size = Vector2(130, 130)
+layout_mode = 2
+size_flags_horizontal = 4
+tooltip_text = "Simple outfit which is an overlay."
+
+[node name="TextureRect" type="TextureRect" parent="CharacterAnimations/HC/VCAnims/VCAnimations/SimpleOutfit/MCAnimChange/Button" unique_id=342723048]
+modulate = Color(1, 1, 1, 0.78431374)
+custom_minimum_size = Vector2(128, 128)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("7_xni86")
+expand_mode = 1
+
+[node name="Label" type="Label" parent="CharacterAnimations/HC/VCAnims/VCAnimations/SimpleOutfit/MCAnimChange/Button" unique_id=440238763]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -61.0
+offset_top = -23.0
+offset_right = 61.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "Click To Change"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="PBaseAnim" type="PanelContainer" parent="CharacterAnimations/HC/VCAnims/VCAnimations" unique_id=1320763436]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 3
+
+[node name="SC" type="ScrollContainer" parent="CharacterAnimations/HC/VCAnims/VCAnimations/PBaseAnim" unique_id=455365360]
+layout_mode = 2
+size_flags_horizontal = 4
+horizontal_scroll_mode = 0
+vertical_scroll_mode = 2
+
+[node name="VC" type="VBoxContainer" parent="CharacterAnimations/HC/VCAnims/VCAnimations/PBaseAnim/SC" unique_id=739065200]
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="IdleAnim" type="MarginContainer" parent="CharacterAnimations/HC/VCAnims/VCAnimations/PBaseAnim/SC/VC" unique_id=225195013]
+layout_mode = 2
+size_flags_horizontal = 4
+script = ExtResource("11_0yucn")
+
+[node name="VC" type="VBoxContainer" parent="CharacterAnimations/HC/VCAnims/VCAnimations/PBaseAnim/SC/VC/IdleAnim" unique_id=1116298646]
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="HBoxContainer" type="HBoxContainer" parent="CharacterAnimations/HC/VCAnims/VCAnimations/PBaseAnim/SC/VC/IdleAnim/VC" unique_id=1908841565]
+layout_mode = 2
+
+[node name="MCAnimChange" type="MarginContainer" parent="CharacterAnimations/HC/VCAnims/VCAnimations/PBaseAnim/SC/VC/IdleAnim/VC" unique_id=1056723519]
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="Button" type="Button" parent="CharacterAnimations/HC/VCAnims/VCAnimations/PBaseAnim/SC/VC/IdleAnim/VC/MCAnimChange" unique_id=2022573032]
+custom_minimum_size = Vector2(130, 130)
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="TextureRect" type="TextureRect" parent="CharacterAnimations/HC/VCAnims/VCAnimations/PBaseAnim/SC/VC/IdleAnim/VC/MCAnimChange/Button" unique_id=22261307]
+modulate = Color(1, 1, 1, 0.78431374)
+custom_minimum_size = Vector2(128, 128)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("7_xni86")
+expand_mode = 1
+
+[node name="Label" type="Label" parent="CharacterAnimations/HC/VCAnims/VCAnimations/PBaseAnim/SC/VC/IdleAnim/VC/MCAnimChange/Button" unique_id=1221531049]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -61.0
+offset_top = -23.0
+offset_right = 61.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "Click To Change"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="MCAnimName" type="MarginContainer" parent="CharacterAnimations/HC/VCAnims/VCAnimations/PBaseAnim/SC/VC/IdleAnim/VC" unique_id=1561288188]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="CharacterAnimations/HC/VCAnims/VCAnimations/PBaseAnim/SC/VC/IdleAnim/VC/MCAnimName" unique_id=967105744]
+layout_mode = 2
+text = "Idle"
+
+[node name="HC" type="HBoxContainer" parent="CharacterAnimations/HC/VCAnims/VCAnimations/PBaseAnim/SC/VC/IdleAnim/VC" unique_id=1296472271]
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="VC" type="VBoxContainer" parent="CharacterAnimations/HC/VCAnims/VCAnimations/PBaseAnim/SC/VC/IdleAnim/VC/HC" unique_id=1419621555]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="CharacterAnimations/HC/VCAnims/VCAnimations/PBaseAnim/SC/VC/IdleAnim/VC/HC/VC" unique_id=1282360476]
+layout_mode = 2
+text = "Frame duration: "
+
+[node name="AnimLengthSP" type="SpinBox" parent="CharacterAnimations/HC/VCAnims/VCAnimations/PBaseAnim/SC/VC/IdleAnim/VC/HC/VC" unique_id=964107213]
+layout_mode = 2
+min_value = 0.1
+step = 0.1
+value = 1.0
+
+[node name="VC2" type="VBoxContainer" parent="CharacterAnimations/HC/VCAnims/VCAnimations/PBaseAnim/SC/VC/IdleAnim/VC/HC" unique_id=310702658]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="CharacterAnimations/HC/VCAnims/VCAnimations/PBaseAnim/SC/VC/IdleAnim/VC/HC/VC2" unique_id=1579703862]
+layout_mode = 2
+text = "Frame count:"
+
+[node name="Anim CountSP" type="SpinBox" parent="CharacterAnimations/HC/VCAnims/VCAnimations/PBaseAnim/SC/VC/IdleAnim/VC/HC/VC2" unique_id=1224425654]
+layout_mode = 2
+min_value = 1.0
+value = 1.0
+
+[node name="TalkAnim" type="MarginContainer" parent="CharacterAnimations/HC/VCAnims/VCAnimations/PBaseAnim/SC/VC" unique_id=1254036842]
+layout_mode = 2
+script = ExtResource("11_0yucn")
+
+[node name="VC" type="VBoxContainer" parent="CharacterAnimations/HC/VCAnims/VCAnimations/PBaseAnim/SC/VC/TalkAnim" unique_id=238032292]
+layout_mode = 2
+
+[node name="MCAnimChange" type="MarginContainer" parent="CharacterAnimations/HC/VCAnims/VCAnimations/PBaseAnim/SC/VC/TalkAnim/VC" unique_id=1998599190]
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="Button" type="Button" parent="CharacterAnimations/HC/VCAnims/VCAnimations/PBaseAnim/SC/VC/TalkAnim/VC/MCAnimChange" unique_id=1310161173]
+custom_minimum_size = Vector2(130, 130)
+layout_mode = 2
+
+[node name="TextureRect" type="TextureRect" parent="CharacterAnimations/HC/VCAnims/VCAnimations/PBaseAnim/SC/VC/TalkAnim/VC/MCAnimChange/Button" unique_id=1102205875]
+modulate = Color(1, 1, 1, 0.78431374)
+custom_minimum_size = Vector2(128, 128)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("7_xni86")
+expand_mode = 1
+
+[node name="Label" type="Label" parent="CharacterAnimations/HC/VCAnims/VCAnimations/PBaseAnim/SC/VC/TalkAnim/VC/MCAnimChange/Button" unique_id=1537568474]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -61.0
+offset_top = -23.0
+offset_right = 61.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "Click To Change"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="MCAnimName" type="MarginContainer" parent="CharacterAnimations/HC/VCAnims/VCAnimations/PBaseAnim/SC/VC/TalkAnim/VC" unique_id=807394012]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="CharacterAnimations/HC/VCAnims/VCAnimations/PBaseAnim/SC/VC/TalkAnim/VC/MCAnimName" unique_id=723282794]
+layout_mode = 2
+text = "Talk"
+
+[node name="HC" type="HBoxContainer" parent="CharacterAnimations/HC/VCAnims/VCAnimations/PBaseAnim/SC/VC/TalkAnim/VC" unique_id=224022267]
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="VC" type="VBoxContainer" parent="CharacterAnimations/HC/VCAnims/VCAnimations/PBaseAnim/SC/VC/TalkAnim/VC/HC" unique_id=98688013]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="CharacterAnimations/HC/VCAnims/VCAnimations/PBaseAnim/SC/VC/TalkAnim/VC/HC/VC" unique_id=704032427]
+layout_mode = 2
+text = "Frame duration: "
+
+[node name="AnimLengthSP" type="SpinBox" parent="CharacterAnimations/HC/VCAnims/VCAnimations/PBaseAnim/SC/VC/TalkAnim/VC/HC/VC" unique_id=880796172]
+layout_mode = 2
+min_value = 0.01
+max_value = 10.0
+step = 0.01
+value = 1.01
+
+[node name="VC2" type="VBoxContainer" parent="CharacterAnimations/HC/VCAnims/VCAnimations/PBaseAnim/SC/VC/TalkAnim/VC/HC" unique_id=971437631]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="CharacterAnimations/HC/VCAnims/VCAnimations/PBaseAnim/SC/VC/TalkAnim/VC/HC/VC2" unique_id=558390728]
+layout_mode = 2
+text = "Frame count:"
+
+[node name="Anim CountSP" type="SpinBox" parent="CharacterAnimations/HC/VCAnims/VCAnimations/PBaseAnim/SC/VC/TalkAnim/VC/HC/VC2" unique_id=448327058]
+layout_mode = 2
+min_value = 1.0
+value = 1.0
+
+[node name="SoundInput" type="MarginContainer" parent="CharacterAnimations/HC/VCAnims/VCAnimations/PBaseAnim/SC/VC/TalkAnim/VC" unique_id=1562578755]
+custom_minimum_size = Vector2(225, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+theme = ExtResource("6_1ub32")
+theme_override_constants/margin_bottom = 30
+
+[node name="OptionButton" type="OptionButton" parent="CharacterAnimations/HC/VCAnims/VCAnimations/PBaseAnim/SC/VC/TalkAnim/VC/SoundInput" unique_id=1210845417]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+text_overrun_behavior = 1
+
+[node name="BlinkAnim" type="MarginContainer" parent="CharacterAnimations/HC/VCAnims/VCAnimations/PBaseAnim/SC/VC" unique_id=1433526102]
+layout_mode = 2
+script = ExtResource("11_0yucn")
+
+[node name="VC" type="VBoxContainer" parent="CharacterAnimations/HC/VCAnims/VCAnimations/PBaseAnim/SC/VC/BlinkAnim" unique_id=520041903]
+layout_mode = 2
+
+[node name="MCAnimChange" type="MarginContainer" parent="CharacterAnimations/HC/VCAnims/VCAnimations/PBaseAnim/SC/VC/BlinkAnim/VC" unique_id=2050377758]
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="Button" type="Button" parent="CharacterAnimations/HC/VCAnims/VCAnimations/PBaseAnim/SC/VC/BlinkAnim/VC/MCAnimChange" unique_id=1787567075]
+custom_minimum_size = Vector2(130, 130)
+layout_mode = 2
+
+[node name="TextureRect" type="TextureRect" parent="CharacterAnimations/HC/VCAnims/VCAnimations/PBaseAnim/SC/VC/BlinkAnim/VC/MCAnimChange/Button" unique_id=1126925015]
+modulate = Color(1, 1, 1, 0.78431374)
+custom_minimum_size = Vector2(128, 128)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("7_xni86")
+expand_mode = 1
+
+[node name="Label" type="Label" parent="CharacterAnimations/HC/VCAnims/VCAnimations/PBaseAnim/SC/VC/BlinkAnim/VC/MCAnimChange/Button" unique_id=2098680964]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -61.0
+offset_top = -23.0
+offset_right = 61.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "Click To Change"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="MCAnimName" type="MarginContainer" parent="CharacterAnimations/HC/VCAnims/VCAnimations/PBaseAnim/SC/VC/BlinkAnim/VC" unique_id=282701422]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="CharacterAnimations/HC/VCAnims/VCAnimations/PBaseAnim/SC/VC/BlinkAnim/VC/MCAnimName" unique_id=509304883]
+layout_mode = 2
+text = "Blink"
+
+[node name="HC" type="HBoxContainer" parent="CharacterAnimations/HC/VCAnims/VCAnimations/PBaseAnim/SC/VC/BlinkAnim/VC" unique_id=1471108369]
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="VC" type="VBoxContainer" parent="CharacterAnimations/HC/VCAnims/VCAnimations/PBaseAnim/SC/VC/BlinkAnim/VC/HC" unique_id=797211997]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="CharacterAnimations/HC/VCAnims/VCAnimations/PBaseAnim/SC/VC/BlinkAnim/VC/HC/VC" unique_id=1789833162]
+layout_mode = 2
+text = "Frame duration: "
+
+[node name="AnimLengthSP" type="SpinBox" parent="CharacterAnimations/HC/VCAnims/VCAnimations/PBaseAnim/SC/VC/BlinkAnim/VC/HC/VC" unique_id=1150973787]
+layout_mode = 2
+min_value = 0.01
+step = 0.05
+value = 1.01
+
+[node name="VC2" type="VBoxContainer" parent="CharacterAnimations/HC/VCAnims/VCAnimations/PBaseAnim/SC/VC/BlinkAnim/VC/HC" unique_id=302314350]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="CharacterAnimations/HC/VCAnims/VCAnimations/PBaseAnim/SC/VC/BlinkAnim/VC/HC/VC2" unique_id=45213463]
+layout_mode = 2
+text = "Frame count:"
+
+[node name="Anim CountSP" type="SpinBox" parent="CharacterAnimations/HC/VCAnims/VCAnimations/PBaseAnim/SC/VC/BlinkAnim/VC/HC/VC2" unique_id=1129238776]
+layout_mode = 2
+min_value = 1.0
+value = 1.0
+
+[node name="FileDialog" type="FileDialog" parent="." unique_id=1586235661]
+oversampling_override = 1.0
+title = "Open a File"
+position = Vector2i(0, 36)
+always_on_top = true
+ok_button_text = "Open"
+dialog_hide_on_ok = true
+file_mode = 0
+display_mode = 1
+access = 2
+filters = PackedStringArray("*.png")
+deleting_enabled = false

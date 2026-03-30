@@ -1,0 +1,87 @@
+[gd_scene format=3 uid="uid://rr3g8gl4nhv3"]
+
+[ext_resource type="Theme" uid="uid://bljk52el3dsxo" path="res://defaultTheme.tres" id="1_4kxdv"]
+[ext_resource type="Script" uid="uid://duusbjgxtrvnj" path="res://Scripts/ConfirmUI.cs" id="1_wrvk3"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_wrvk3"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_fqdf2"]
+
+[node name="PopupYN" type="PanelContainer" unique_id=1743660956]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_wrvk3")
+script = ExtResource("1_wrvk3")
+
+[node name="C" type="CanvasLayer" parent="." unique_id=547541755]
+layer = 2
+visible = false
+
+[node name="PC" type="PanelContainer" parent="C" unique_id=1972710237]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -82.0
+offset_top = -49.0
+offset_right = 82.0
+offset_bottom = 49.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBC" type="VBoxContainer" parent="C/PC" unique_id=1923250749]
+layout_mode = 2
+
+[node name="MC" type="MarginContainer" parent="C/PC/VBC" unique_id=822307723]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="Label" type="Label" parent="C/PC/VBC/MC" unique_id=548785885]
+custom_minimum_size = Vector2(50, 10)
+layout_mode = 2
+text = "Default Text"
+label_settings = SubResource("LabelSettings_fqdf2")
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="HBC" type="HBoxContainer" parent="C/PC/VBC" unique_id=286628030]
+layout_mode = 2
+
+[node name="AcceptMC" type="MarginContainer" parent="C/PC/VBC/HBC" unique_id=1449370231]
+layout_mode = 2
+theme = ExtResource("1_4kxdv")
+
+[node name="AcceptButton" type="Button" parent="C/PC/VBC/HBC/AcceptMC" unique_id=1707574977]
+layout_mode = 2
+text = "Yes"
+
+[node name="NoMC" type="MarginContainer" parent="C/PC/VBC/HBC" unique_id=1982673390]
+layout_mode = 2
+theme = ExtResource("1_4kxdv")
+
+[node name="NoButton" type="Button" parent="C/PC/VBC/HBC/NoMC" unique_id=1094749684]
+layout_mode = 2
+text = "No"
+
+[node name="CancelMC" type="MarginContainer" parent="C/PC/VBC/HBC" unique_id=675623991]
+layout_mode = 2
+theme = ExtResource("1_4kxdv")
+
+[node name="CancelButton" type="Button" parent="C/PC/VBC/HBC/CancelMC" unique_id=1250644864]
+layout_mode = 2
+theme = ExtResource("1_4kxdv")
+text = "Cancel"

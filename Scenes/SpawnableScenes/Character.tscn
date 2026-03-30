@@ -1,0 +1,113 @@
+[gd_scene format=3 uid="uid://dautd6ql411tt"]
+
+[ext_resource type="Script" uid="uid://ckv6r253ge5vo" path="res://Scripts/Character.cs" id="1_677pu"]
+[ext_resource type="Texture2D" uid="uid://dcinfsgodjelv" path="res://Sprites/missingImageInPNGTuberApp.png" id="2_jo2ib"]
+[ext_resource type="Theme" uid="uid://bljk52el3dsxo" path="res://defaultTheme.tres" id="3_inmlt"]
+[ext_resource type="Texture2D" uid="uid://d0h8oktr1gffb" path="res://Sprites/TrashIcon.png" id="4_obgpd"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_inmlt"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_obgpd"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ue2ra"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_nstnx"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_7f61d"]
+
+[node name="Character" type="Control" unique_id=1925086166]
+custom_minimum_size = Vector2(512, 512)
+layout_mode = 3
+anchor_left = 0.171
+anchor_top = 0.32000002
+anchor_right = 0.171
+anchor_bottom = 0.32000002
+offset_left = -256.5
+offset_top = -256.00003
+offset_right = 255.5
+offset_bottom = 255.99997
+pivot_offset_ratio = Vector2(0.5, 0.5)
+script = ExtResource("1_677pu")
+
+[node name="VC" type="VBoxContainer" parent="." unique_id=1040377344]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="CInteractButton" type="Button" parent="VC" unique_id=872679935]
+custom_minimum_size = Vector2(512, 512)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_styles/normal = SubResource("StyleBoxEmpty_inmlt")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_obgpd")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_ue2ra")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_nstnx")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_7f61d")
+
+[node name="MainSprite" type="TextureRect" parent="VC/CInteractButton" unique_id=38872540]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_jo2ib")
+expand_mode = 1
+
+[node name="EyesTR" type="TextureRect" parent="VC/CInteractButton" unique_id=149313713]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+
+[node name="MouthTR" type="TextureRect" parent="VC/CInteractButton" unique_id=1241905954]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+
+[node name="SimpleOutfitTR" type="TextureRect" parent="VC/CInteractButton" unique_id=1633176533]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+
+[node name="HC" type="HBoxContainer" parent="VC" unique_id=91220161]
+layout_mode = 2
+
+[node name="MCOutfits" type="MarginContainer" parent="VC/HC" unique_id=1850106125]
+layout_mode = 2
+size_flags_horizontal = 3
+theme = ExtResource("3_inmlt")
+
+[node name="OptionButton" type="OptionButton" parent="VC/HC/MCOutfits" unique_id=1383986626]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+
+[node name="MCDelete" type="MarginContainer" parent="VC/HC" unique_id=711475668]
+custom_minimum_size = Vector2(100, 100)
+layout_mode = 2
+theme = ExtResource("3_inmlt")
+
+[node name="Button" type="Button" parent="VC/HC/MCDelete" unique_id=767734700]
+layout_mode = 2
+
+[node name="TextureRect" type="TextureRect" parent="VC/HC/MCDelete/Button" unique_id=1858372337]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("4_obgpd")
+expand_mode = 3

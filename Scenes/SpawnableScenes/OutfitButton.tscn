@@ -1,0 +1,21 @@
+[gd_scene format=3 uid="uid://lft2ah3ixoyl"]
+
+[ext_resource type="Script" uid="uid://bjq3rxxly0dns" path="res://Scripts/OutfitButtonUI.cs" id="1_3wt4x"]
+[ext_resource type="Texture2D" uid="uid://dcinfsgodjelv" path="res://Sprites/missingImageInPNGTuberApp.png" id="2_btw6h"]
+
+[node name="OutfitButton" type="MarginContainer" unique_id=2002619796]
+script = ExtResource("1_3wt4x")
+
+[node name="Button" type="Button" parent="." unique_id=1218380080]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+
+[node name="TextureRect" type="TextureRect" parent="Button" unique_id=1220629620]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_btw6h")
+expand_mode = 1

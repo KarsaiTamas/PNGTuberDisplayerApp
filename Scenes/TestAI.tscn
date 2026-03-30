@@ -1,0 +1,12 @@
+[gd_scene format=3 uid="uid://b5iq2inecdwty"]
+
+[ext_resource type="Script" uid="uid://c5aeuiy2ufltm" path="res://Scripts/Test.cs" id="1_pirk8"]
+
+[node name="TestAi" type="Node" unique_id=1948334976]
+
+[node name="Control" type="Control" parent="." unique_id=887481882]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("1_pirk8")

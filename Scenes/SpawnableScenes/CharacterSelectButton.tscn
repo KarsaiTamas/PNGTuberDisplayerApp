@@ -1,0 +1,53 @@
+[gd_scene format=3 uid="uid://7vsawo3mstuq"]
+
+[ext_resource type="Script" uid="uid://dieqtpjw0g33q" path="res://Scripts/CharacterSelectUI.cs" id="1_0uv2o"]
+[ext_resource type="Texture2D" uid="uid://d0h8oktr1gffb" path="res://Sprites/TrashIcon.png" id="2_0uv2o"]
+
+[node name="CharacterUI" type="MarginContainer" unique_id=1182907399]
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+script = ExtResource("1_0uv2o")
+
+[node name="panel" type="PanelContainer" parent="." unique_id=648894025]
+layout_mode = 2
+
+[node name="MG" type="MarginContainer" parent="panel" unique_id=2136988650]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="VC" type="VBoxContainer" parent="panel/MG" unique_id=1872260929]
+layout_mode = 2
+
+[node name="SelectCharacter" type="Button" parent="panel/MG/VC" unique_id=1856565827]
+layout_mode = 2
+tooltip_text = "Opens up this character's edit panel."
+text = "Character name"
+
+[node name="HC" type="HBoxContainer" parent="panel/MG/VC" unique_id=1286182714]
+layout_mode = 2
+
+[node name="AddToSceneButton" type="Button" parent="panel/MG/VC/HC" unique_id=1577182586]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+tooltip_text = "Adds the character to the current scene."
+text = "Add To Scene"
+
+[node name="DeleteCharacterButton" type="Button" parent="panel/MG/VC/HC" unique_id=263569438]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+
+[node name="TextureRect" type="TextureRect" parent="panel/MG/VC/HC/DeleteCharacterButton" unique_id=1935766334]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+tooltip_text = "Delete this character"
+texture = ExtResource("2_0uv2o")
+expand_mode = 1

@@ -1,0 +1,48 @@
+[gd_scene format=3 uid="uid://dkvywua13r2xh"]
+
+[ext_resource type="Script" uid="uid://da1rxens3dtoy" path="res://Scripts/SceneSelectUI.cs" id="1_wamaw"]
+[ext_resource type="Texture2D" uid="uid://d0h8oktr1gffb" path="res://Sprites/TrashIcon.png" id="2_wamaw"]
+
+[node name="SceneUI" type="MarginContainer" unique_id=1182907399]
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+script = ExtResource("1_wamaw")
+
+[node name="panel" type="PanelContainer" parent="." unique_id=648894025]
+layout_mode = 2
+
+[node name="MG" type="MarginContainer" parent="panel" unique_id=2136988650]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="HC" type="HBoxContainer" parent="panel/MG" unique_id=1286182714]
+layout_mode = 2
+
+[node name="SelectScene" type="Button" parent="panel/MG/HC" unique_id=1856565827]
+custom_minimum_size = Vector2(125, 0)
+layout_mode = 2
+size_flags_horizontal = 0
+tooltip_text = "Opens this scene and closes other scene if open."
+text = "Scene nameasdasdas"
+text_overrun_behavior = 1
+autowrap_trim_flags = 192
+
+[node name="DeleteScene" type="Button" parent="panel/MG/HC" unique_id=263569438]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+
+[node name="TextureRect" type="TextureRect" parent="panel/MG/HC/DeleteScene" unique_id=1935766334]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+tooltip_text = "Deletes this scene"
+texture = ExtResource("2_wamaw")
+expand_mode = 1
