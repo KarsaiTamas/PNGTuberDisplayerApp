@@ -15,10 +15,11 @@ public static class SpawnHandler
 
         foreach (string file_name in files)
         {
-            PackedScene loaded_resource = GD.Load<PackedScene>(path + file_name);
+            string loadName = file_name.TrimSuffix(".remap");
+            PackedScene loaded_resource = GD.Load<PackedScene>(path + loadName);
             //GD.Print(file_name);
-            if (loaded_resource == null) { continue; }
-            resources.Add(file_name.Replace(".tscn", ""), loaded_resource);
+            if (loaded_resource == null) { continue; } 
+            resources.Add(loadName.TrimSuffix(".remap").TrimSuffix(".tscn"), loaded_resource);
         }
 
         return resources;

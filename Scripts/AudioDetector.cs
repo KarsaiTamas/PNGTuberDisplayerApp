@@ -31,7 +31,7 @@ public partial class AudioDetector : Node
             delayTimer -= (float)delta;
             return;
         }  
-        //GD.Print(IsTalking);
+        GD.Print(IsTalking);
         Rpc("SetIsTalking", IsTalking);
         IsTalking = false;
         delayTimer = delay;

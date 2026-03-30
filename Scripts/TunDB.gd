@@ -69,7 +69,7 @@ func ChangeScene(newScene):
 		dbScene.close_db()
 		isSceneOpened=false
 	lastUsedScene=newScene
-	dbScene.path="res://characters/"+lastUsedScene+".db"  
+	dbScene.path="res://saves/"+lastUsedScene+".db"  
 	dbScene.open_db()
 	isSceneOpened=true
 	
@@ -78,7 +78,7 @@ func ChangeUsedCharacter(newCharacter):
 		dbCharacter.close_db()
 		isCharacterOpened=false
 	lastUsedCharacter=newCharacter
-	dbCharacter.path="res://characters/"+lastUsedCharacter+".db"  
+	dbCharacter.path="res://saves/"+lastUsedCharacter+".db"  
 	dbCharacter.open_db()
 	isCharacterOpened=true
 	

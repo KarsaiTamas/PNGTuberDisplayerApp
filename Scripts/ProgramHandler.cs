@@ -52,6 +52,7 @@ public partial class ProgramHandler : Node
     {
 
         instance = this;
+        FileLoaderHandler.CreateSavesFolder();
         DB = GetNode<Node>("DB");
         loadedCharacters= new List<CharacterSelectUI>();
         loadedScenes = new List<SceneSelectUI>();
@@ -61,7 +62,7 @@ public partial class ProgramHandler : Node
         newCharacterButton = GetNode<Button>("CharactersP/VBC/PC/MC/VBC/NewCharacterB/Button");
         saveSceneButton = GetNode<Button>("ScenesP/VBC/PC/MC/VBC/SaveScene/Button");
         sceneNameLE = GetNode<LineEdit>("ScenesP/VBC/PC/MC/VBC/SceneName/LineEdit");
-        loadedScene = GetNode("LoadedScene");
+        loadedScene = GetNode("LoadedScene"); 
         //
         scenesPanel = GetNode<Panel>("ScenesP");
         charactersPanel = GetNode<Panel>("CharactersP");
@@ -269,7 +270,7 @@ public partial class ProgramHandler : Node
     #region UI
     public void ChangeScene(int id)
     {
-        OnSceneChange.Invoke(id == openSceneID?-1:id);
+        OnSceneChange?.Invoke(id == openSceneID?-1:id);
         if (openScene!=null)
         {
             bool sameClicked = id == openSceneID;

@@ -5,6 +5,7 @@ using System.IO;
 public static class FileLoaderHandler
 {
 
+    const string defaultImage = $"res://Sprites/missingImageInPNGTuberApp.png";
     public static byte[] ImageToBytes(Image image)
     {
         return image.SavePngToBuffer();
@@ -28,17 +29,26 @@ public static class FileLoaderHandler
         else
         {
             GD.Print($"Failed to load image at location: {location}");
-            texture.SetImage(Image.LoadFromFile($"Sprites/missingImageInPNGTuberApp.png"));
+            texture.SetImage(GetDefaultImage());
         }
         return texture;
 
     }
-
+    static Image GetDefaultImage()
+    {
+        CompressedTexture2D texture = GD.Load<CompressedTexture2D>(defaultImage);
+        Image image = texture.GetImage(); 
+        return image;
+    }
     public static void ShowFileDialogue()
     {
 
     }
 
+    public static void CreateSavesFolder()
+    {
+        if(!Directory.Exists("saves"))Directory.CreateDirectory("saves");
+    }
     public static string GetSpriteLocation(string path)
     {
         return path.Substr(0, path.Length - 4);
@@ -50,8 +60,8 @@ public static class FileLoaderHandler
         if(image!=null) texture.SetImage(image);
         else
         {
-            GD.Print($"Failed to load image ");
-            texture.SetImage(Image.LoadFromFile($"Sprites/missingImageInPNGTuberApp.png"));
+            GD.Print($"Failed to load image "); 
+            texture.SetImage(GetDefaultImage());
         }
         return texture;
 
