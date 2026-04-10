@@ -12,14 +12,15 @@ public partial class AudioDetector : Node
 	private AudioStreamPlayer micInput;
 	private AudioStreamGenerator playBack;
 	private int _micBusIndex;
-	private float delayTimer; 
-
+	private float delayTimer;
+    string applicationName;
+    public bool isCustom; 
 	public override void _Ready()
 	{
         // Create a dedicated mic bus
 
         // Create mic input player on that bus
-        
+        isCustom=false;
     }
 
 	public override void _Process(double delta)
@@ -30,11 +31,13 @@ public partial class AudioDetector : Node
         {
             delayTimer -= (float)delta;
             return;
-        }  
+        }
+        if (isCustom) MonitorCustomAudio();
+        delayTimer = delay;
+         
         GD.Print(IsTalking);
         Rpc("SetIsTalking", IsTalking);
         IsTalking = false;
-        delayTimer = delay;
 
     }
 
@@ -88,15 +91,27 @@ public partial class AudioDetector : Node
             // Restart the mic player to use the new device 
             micInput.Play(); 
         */
+        if (isCustom)
+        {
+            applicationName=deviceName;
+            return;
+        }
         audioDetector.StopMonitoring();
         audioDetector.SetDeviceToUse(deviceName);
         audioDetector.StartMonitoring();
 
     }
-    public void SetupAudio(int sceneID,long peerID)
+    public void MonitorCustomAudio()
+    {
+        float twitchBotSound = DetectAudio.GetApplicationVolume(applicationName);
+        IsTalking = (twitchBotSound > TalkThreshold);
+    }
+    public void SetupAudio(int sceneID,long peerID, bool isCustom)
 	{
 		SetMultiplayerAuthority((int)peerID); 
         if (!IsMultiplayerAuthority()) return;
+        this.isCustom= isCustom;
+        if (isCustom) return; 
         audioDetector = new DetectAudio();
         audioDetector.UseDefaultInputDevice();
         audioDetector.StartMonitoring();
@@ -154,6 +169,7 @@ public partial class AudioDetector : Node
     }
     public void RemovingAudio()
     {
+        if (audioDetector == null || isCustom) return;
         audioDetector.OnVolumeThresholdExceeded -= VolumeExceededTreshHold;
         audioDetector.Dispose();
     }

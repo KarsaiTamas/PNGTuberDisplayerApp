@@ -3,7 +3,6 @@ using Godot.Collections;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 public partial class SceneHandler : Node
 {
@@ -17,6 +16,12 @@ public partial class SceneHandler : Node
     {
         LoadScene();
     }*/
+    public Character SelectCharacter(Vector2 mousePos)
+    {
+        var inBoundCharacters = charactersInScene.Where(c => c.character.InSelectionZone(mousePos)).OrderBy(e=>e.character.order).FirstOrDefault();
+        if(inBoundCharacters==null) return null;
+        return inBoundCharacters.character;
+    }
     public void LoadScene()
     {
 

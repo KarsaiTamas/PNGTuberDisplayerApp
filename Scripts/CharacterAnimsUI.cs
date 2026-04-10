@@ -3,6 +3,7 @@ using Godot.Collections;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 public partial class CharacterAnimsUI : Control
 {
@@ -12,17 +13,19 @@ public partial class CharacterAnimsUI : Control
     public Button AddNewOutfitButton;
     public Button removeOutfitButton;
     public Button saveOutfitButton;
-    public OptionButton optionButton;
-    Node animationsHolder;
-    SimpleAnimUI simpleOutfit;
+    public OptionButton characterTypeButton;
+    public Node animationsHolder;
+    public SimpleAnimUI simpleOutfit;
     Control complexOutfit;
-    Node outfitsHolder;
+    public Node outfitsHolder;
     public LineEdit characterName;
     public LineEdit outfitName;
     public Button simpleOutfitButton;
     public CheckButton simpleOutfitToggle;
     public TextureRect simpleOutfitTextureRect;
     public Button closeButton;
+    public LineEdit specificProgramLineEdit;
+    public List<string> devices;
     public override void _EnterTree()
     {
         animationsHolder = GetNode<Node>("HC/VCAnims/VCAnimations/PBaseAnim/SC/VC");
@@ -35,7 +38,7 @@ public partial class CharacterAnimsUI : Control
         simpleOutfit = GetNode<SimpleAnimUI>("HC/VCAnims/VCAnimations/SimpleOutfit");
         complexOutfit = GetNode<Control>("HC/VCAnims/VCAnimations/PBaseAnim");
         simpleOutfitToggle = GetNode<CheckButton>("HC/VCAnims/VCAnimations/IsSimple/CheckButton");
-        optionButton=GetNode<OptionButton>("HC/VCAnims/VCAnimations/CharacterType/OptionButton");
+        characterTypeButton=GetNode<OptionButton>("HC/VCAnims/VCAnimations/CharacterType/OptionButton");
         closeButton=GetNode<Button>("HC/VCAnims/HC/Closer/Button");
         //HC/VCAnims/VCAnimations/IsSimple/CheckButton
         //HC/VCAnims/VCAnimations/SimpleOutfit/MCAnimChange/Button
@@ -45,19 +48,29 @@ public partial class CharacterAnimsUI : Control
         outfitName = GetNode<LineEdit>("HC/VCAnims/OutfitName/LineEdit");
         outfitsHolder = GetNode<Node>("HC/Outfits/VC/OutfitsHolder/SC/VC");
         //HC/Outfits/VC/Add Outfit/Button
+        //HC/VCAnims/VCAnimations/PBaseAnim/SC/VC/TalkAnim/VC/SpecificProgramSound/LineEdit
+        specificProgramLineEdit = GetNode<LineEdit>("HC/VCAnims/VCAnimations/PBaseAnim/SC/VC/TalkAnim/VC/SpecificProgramSound/LineEdit");
         currentCharacterTalkButton = GetNode<OptionButton>("HC/VCAnims/VCAnimations/PBaseAnim/SC/VC/TalkAnim/VC/SoundInput/OptionButton");
-        var devices = AudioServer.GetInputDeviceList();
+        devices = AudioServer.GetInputDeviceList().ToList();
         foreach (var item in devices)
         {
             currentCharacterTalkButton.AddItem(item);
 
+        } 
+        currentCharacterTalkButton.AddItem("CUSTOM", -5);
+        
+    }
+
+    private void TalkOutputToSelect(long index)
+    {
+        if (currentCharacterTalkButton.GetItemId((int)index)==-5)
+        {
+            specificProgramLineEdit.Show();
         }
-        saveOutfitButton.ButtonUp += SaveOutfit;
-        removeOutfitButton.ButtonDown += DeleteOutfit;
-        AddNewAnimButton.ButtonUp += AddNewAnimation;
-        AddNewOutfitButton.ButtonUp += AddNewOutFit;
-        simpleOutfitButton.ButtonUp += SetSimpleOutFit;
-        closeButton.ButtonUp += CloseCharacterAnims;
+        else
+        {
+            specificProgramLineEdit.Hide();
+        } 
     }
 
     public override void _Ready()
@@ -66,10 +79,25 @@ public partial class CharacterAnimsUI : Control
         ChangeOutfit(1);
         Hide();
         simpleOutfitToggle.Toggled += SetSimpleOutfit;
+        saveOutfitButton.ButtonUp += SaveOutfit;
+        removeOutfitButton.ButtonDown += DeleteOutfit;
+        AddNewAnimButton.ButtonUp += AddNewAnimation;
+        AddNewOutfitButton.ButtonUp += AddNewOutFit;
+        simpleOutfitButton.ButtonUp += SetSimpleOutFit;
+        closeButton.ButtonUp += CloseCharacterAnims;
+        currentCharacterTalkButton.ItemSelected += TalkOutputToSelect;
+        characterTypeButton.ItemSelected += CharacterTypeChanged;
     }
+
+    private void CharacterTypeChanged(long index)
+    {
+        data.characterType=(CharacterType)index;
+    }
+
     public void ChangeOutfit(int newOutfit)
     {
-        data.selectedOutfit = newOutfit;
+        DataHandler.LoadOutfitToUI(newOutfit);
+        /*data.selectedOutfit = newOutfit;
         if (newOutfit == 1) removeOutfitButton.Hide();
         else removeOutfitButton.Show();
         var cData=DataBaseHandler.GetCharacterInSaves(ProgramHandler.selectedCharacterID.ToString());
@@ -85,6 +113,7 @@ public partial class CharacterAnimsUI : Control
         simpleOutfitToggle.ButtonPressed=oData == null ? false : oData[DataBaseHandler.oIsSimple].AsBool();
         
         simpleOutfitToggle.Visible = newOutfit != 1;
+        */
     }
     public void ChangeAnimations()
     {
@@ -114,13 +143,15 @@ public partial class CharacterAnimsUI : Control
         data.outfitsUI.Clear();
         AddDefaultOutfit();
     }
-    void AddDefaultOutfit()
+    public void AddDefaultOutfit()
     {
         data.outfitsUI.Add((OutfitButtonUI)outfitsHolder.GetChild(0));
     }
     void SaveOutfit()
     {
         PutUIOutfitDataIntoData();
+        DataHandler.SaveOutfit();
+        /*
         DataBaseHandler.UpdateCharacter(data.characterID.ToString(), data.characterName, data.characterType.ToString());
         var cData= ProgramHandler.instance.GetCharacter(data.characterID);
         cData.selectCharacterButton.Text = data.characterName;
@@ -138,7 +169,15 @@ public partial class CharacterAnimsUI : Control
             anim.PutUIDataIntoData();
             if (anim.Name.Equals("TalkAnim"))
             {
-                anim.data.extraAnimInfo = currentCharacterTalkButton.GetItemText(currentCharacterTalkButton.Selected);
+                if (currentCharacterTalkButton.GetItemText(currentCharacterTalkButton.Selected).Equals("CUSTOM"))
+                {
+                    anim.data.extraAnimInfo = specificProgramLineEdit.Text;
+                }
+                else
+                {
+                    anim.data.extraAnimInfo = currentCharacterTalkButton.GetItemText(currentCharacterTalkButton.Selected);
+                   
+                }
             }
             DataBaseHandler.UpdateAnimationInCharacter(
                 anim.data.animID,
@@ -152,7 +191,7 @@ public partial class CharacterAnimsUI : Control
                 anim.data.extraAnimInfo);
         }
         oData.ChangeButtonLook(data.anims[0].data.spriteLoc);
-
+        */
     }
     public void DeleteOutfit()
     {
@@ -219,10 +258,13 @@ public partial class CharacterAnimsUI : Control
 
     public void LoadOutfits()
     {
-        data.outfitsUI.Clear();
+        DataHandler.LoadOutfitsToUI();
+        /*
+         * data.outfitsUI.Clear();
         AddDefaultOutfit();
         var outfits= DataBaseHandler.GetOutfits(data.characterID);
         var outfit = outfits[0].AsGodotDictionary();
+        characterTypeButton.Select(DataLoader.LoadCharacterType(data.characterID));
         data.outfitsUI[0].SetupOutfit(data.characterID, outfit["id"].AsInt32());
         data.simpleOutfitLocation = (string)outfit[DataBaseHandler.outfitLocation];
         simpleOutfitTextureRect.Texture= FileLoaderHandler.GetCharacterAnim(data.simpleOutfitLocation);
@@ -233,15 +275,18 @@ public partial class CharacterAnimsUI : Control
             var outFitUI = (OutfitButtonUI)SpawnHandler.Spawn(SpawnableScenes.OutfitButton, outfitsHolder);
             outFitUI.SetupOutfit(data.characterID, outfit["id"].AsInt32());
             data.outfitsUI.Add(outFitUI);
-        var anims= DataBaseHandler.GetCharacterAnimations(data.characterID, outfit["id"].AsInt32());
+            var anims= DataBaseHandler.GetCharacterAnimations(data.characterID, outfit["id"].AsInt32());
             outFitUI.ChangeButtonLook(outfit[DataBaseHandler.oIsSimple].AsBool()?
                 outfit[DataBaseHandler.outfitLocation].AsString():
                 anims[0].AsGodotDictionary()[DataBaseHandler.oSpriteFile].AsString());
         }
         data.outfitsUI[0].LoadOutfit();
+        */
     }
     void LoadAnims()
     {
+        DataHandler.LoadAnimationsToUI();
+        /*
         var anims= DataBaseHandler.GetCharacterAnimations(data.characterID, data.selectedOutfit);
         if (anims == null) return;
         for (int i = 3; i < anims.Count; i++)
@@ -262,9 +307,28 @@ public partial class CharacterAnimsUI : Control
                 (float)dbData[DataBaseHandler.oAnimLength].AsDouble(),
                 dbData[DataBaseHandler.oAnimCount].AsInt32(),
                 dbData[DataBaseHandler.oAnimType].AsInt32(),
-                dbData[DataBaseHandler.oAnimExtraInfo].AsString());
+                dbData[DataBaseHandler.oAnimExtraInfo].AsString()); 
+            if (dbData["name"].AsString().Equals("Talk"))
+            {
+                bool deviceSelected=false;
+                for (int j = 0; j < devices.Count; j++)
+                { 
+                    if (devices[j].Equals(dbData[DataBaseHandler.oAnimExtraInfo].AsString()))
+                    { 
+                        currentCharacterTalkButton.Select(j);
+                        deviceSelected=true;
+                        break;
+                    }
+                }
+                if (!deviceSelected)
+                {
+                    currentCharacterTalkButton.Select(devices.Count); ;
+                    specificProgramLineEdit.Text = dbData[DataBaseHandler.oAnimExtraInfo].AsString();
+                }
+            }
             data.anims[i].LoadDataIntoTheUI();
         }
+        */
     }
 
     public void SetSimpleOutfit(bool isSimple)

@@ -2,6 +2,7 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 
 public partial class Character : Control
@@ -16,6 +17,8 @@ public partial class Character : Control
     public string cName;
     [Export]
     public int outfitID;
+    [Export]
+    public int order;
     bool isBaseOutfitloaded;
     public CharacterType type;
     //List<ImageTexture> blink; 
@@ -27,7 +30,9 @@ public partial class Character : Control
     Button characterInteractButton;
     OptionButton selectedOutfit;
     Button deleteCharacterFromScene;
+    [Export]
     public Vector2 position;
+    [Export]
     public Vector2 size;
     public bool mirrored;
     public float blinkTimer;
@@ -36,7 +41,7 @@ public partial class Character : Control
     public bool isEdited;
     public bool isSimple;
     public bool isOnlineCharacter;
-    bool editedCheckForVisibility=false;
+    public bool editedCheckForVisibility=false;
     bool uiIsVisible=false;
     public override void _EnterTree()
     {
@@ -69,42 +74,36 @@ public partial class Character : Control
 
     }
     public override void _Ready()
-    {
+    {/*
         characterInteractButton.ButtonDown +=
         () =>
         {
-            ProgramHandler.instance.selectedCharacter = this;
+           // ProgramHandler.instance.selectedCharacter = this;
             /*
             blinkPos++;
             if (blinkPos > blink.Count - 1)
             {
                 blinkPos = 0;
             }
-            texture.TextureNormal = blink[blinkPos];*/
+            texture.TextureNormal = blink[blinkPos];
         };
         characterInteractButton.ButtonUp += () =>
         {
-            ToggleUIElements();
-            ProgramHandler.instance.selectedCharacter = null;
-            editedCheckForVisibility = false;
-        };
+            //ToggleUIElements();
+            //ProgramHandler.instance.selectedCharacter = null;
+            //editedCheckForVisibility = false;
+        };*/
         deleteCharacterFromScene.ButtonUp += DeleteCharacterPopup;
     }
 
-    private void ToggleUIElements()
+    public void ToggleUIElements()
     { 
         if (editedCheckForVisibility) return; 
         uiIsVisible = !uiIsVisible;
-        if (uiIsVisible)
-        {
-            selectedOutfit.Hide();
-            deleteCharacterFromScene.Hide();
-        }
-        else
-        {
-            selectedOutfit.Show();
-            deleteCharacterFromScene.Show();
-        }
+        
+        selectedOutfit.Visible= uiIsVisible;
+        deleteCharacterFromScene.Visible = uiIsVisible;
+        
     }
 
     public void CharacterActions(InputEventMouse mouse,Vector2 currentMouseLocation, Vector2 previousMouseLocation)
@@ -167,8 +166,12 @@ public partial class Character : Control
     public void SetupCharacter()
     {
         var charactersData= DataBaseHandler.GetCharacterInSaves(characterID.ToString());
-        var sceneData=DataBaseHandler.GetCharacterInScene(characterID.ToString());
+        var sceneData=DataBaseHandler.GetCharacterInScene(sceneID.ToString());
+        GD.Print("Settting up character sdfkljhskfsdjhsdjkfhsdkjh");
+        GD.Print(characterID);
+        GD.Print(sceneData);
         if (sceneData == null) return;
+        GD.Print("Character setup");
         outfitID= sceneData[DataBaseHandler.outfitID].AsInt32();
         var cData= DataBaseHandler.GetOutfit(characterID, outfitID);
 
@@ -176,9 +179,10 @@ public partial class Character : Control
         isSimple = cData == null?false: cData[DataBaseHandler.oIsSimple].AsBool();
         mirrored= sceneData[DataBaseHandler.mirrored].AsBool();
         Flip(mirrored);
-
+        outfitTexture.Visible= isSimple;
+        
         position = GlobalPosition;
-
+        type= (CharacterType)DataHandler.GetCharacterType(charactersData);
         size = characterInteractButton.CustomMinimumSize;
         editedCheckForVisibility = false;
         selectedOutfit.Clear();
@@ -205,7 +209,17 @@ public partial class Character : Control
             }
         }
 
-
+        switch (type)
+        {
+            case CharacterType.character_png:
+                break;
+            case CharacterType.prop:
+            default: 
+                eyesTexture.Hide();
+                mouthTexture.Hide();
+                outfitTexture.Hide();
+                break;
+        }
         // type = charactersData[DataBaseHandler.cCharacterType].AsString();
     }
 
@@ -313,19 +327,38 @@ public partial class Character : Control
         LoadAnimationsInOutfit(outfitID,isSimple,simpleOutfit);
         
         mainTexture.Texture = outfitAnimations["Idle"].animationSequence[0];
+        outfitTexture.Visible= isSimple;
+
+
         switch (type)
         {
             case CharacterType.character_png: 
                 var talkAnim = outfitAnimations["Talk"];
-                audioDetector.SetupAudio(sceneID, peerId);
+
+                var devices = AudioServer.GetInputDeviceList().ToList();
+                bool isCustom = !devices.Contains(talkAnim.extraAnimInfo);
+                audioDetector.SetupAudio(sceneID, peerId,isCustom);
                 audioDetector.SetInputDevice(talkAnim.extraAnimInfo);
                 break;
             case CharacterType.prop:
             default:
-
+                eyesTexture.Hide();
+                mouthTexture.Hide();
+                outfitTexture.Hide();
                 break;
         }
         //audioDetector.SetInputDevice(talkAnim.extraAnimInfo);
+    }
+    public bool InSelectionZone(Vector2 pos)
+    {
+        float xPosMin=position.X+characterInteractButton.Position.X;
+        float yPosMin=position.Y + characterInteractButton.Position.Y;
+        float xPosMax = position.X+size.X+characterInteractButton.Position.X;
+        float yPosMax = position.Y + size.Y + characterInteractButton.Position.Y;
+        float x=pos.X;
+        float y=pos.Y;
+        return (x > xPosMin && y > yPosMin &&
+            x < xPosMax && y < yPosMax);
     }
     public void SetupOnlineAnimations()
     {

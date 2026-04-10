@@ -75,6 +75,7 @@ public static class DataBaseHandler
     public static string oAnimExtraInfo = "extra_anim_info";
     public static string lastUsedCharacter = "character";//#needs character id at the end
     public static string lastUsedSceneTable = "last_used_scene";
+    public const string dataSaveLocation = "saves";
 
     #region Main database
     public static Dictionary GetRowDataFromArray(Variant data)
@@ -109,7 +110,7 @@ public static class DataBaseHandler
     public static int GetNextIDForTable(Table table,int characterID = 1)
     {
         string command = $"SELECT MAX(id) as idm FROM {table.ToString()};";
-        GD.Print(command);
+        //GD.Print(command);
         Godot.Collections.Array value;
         switch (table)
         {
@@ -163,7 +164,7 @@ public static class DataBaseHandler
     public static Variant RunCharacterInSceneSQLCommand(string command,int charID)
     {
         Variant def = -1;
-        GD.Print(command);
+        //GD.Print(command);
         if (GetCharacterInSaves(charID.ToString()) == null) return def;
         ChangeUsedCharacter(charID);
         var returnData = ProgramHandler.DB.Call("RunCharacterSQLCommand", command);
@@ -182,16 +183,20 @@ public static class DataBaseHandler
         ProgramHandler.DB.Call("CloseUsedCharacter");
     }
 
-    public static void UpdateCharacter(string id,string name, string type)
+    public static void UpdateCharacter(string id,string name, int type)
     {
-        ProgramHandler.DB.Call("UpdateCharacter",id, name, type);
+        ProgramHandler.DB.Call("UpdateCharacter",id, name, type.ToString());
     }
 
-    public static void DeleteCharacter(string id)
+    public static bool DeleteCharacter(string id)
     {
-        string path= $"characters/{ProgramHandler.DB.Call("DeleteCharacter", id).AsString()}.db";
+        var character = GetCharacterInSaves(id);
+        string path = $"{dataSaveLocation}/{character[saveLocation]}.db";
+        CloseUsedCharacter();
         GD.Print(path);
-        if(File.Exists(path)) File.Delete(path);
+        if (!FileLoaderHandler.DeleteFile(path)) return false;
+        ProgramHandler.DB.Call("DeleteCharacter", id.ToString());
+        return true;
     }
 
     public static void DeleteOutfit(int cID,int oID)
@@ -221,7 +226,7 @@ public static class DataBaseHandler
         return GetRowDataFromArray(ProgramHandler.DB.Call("SelectCharacterInScene", id));
     }
 
-    public static void CreateCharacter(string id, string name, CharacterType type)
+    public static void CreateCharacter(string id, string name, int type)
     {
         ProgramHandler.DB.Call("CreateCharacter", id, name, type.ToString(), $"character{GetNextIDForTable(Table.characters)}");
 
@@ -282,8 +287,7 @@ public static class DataBaseHandler
         string name,
         bool isSimple,
         string outfitLocation)
-    {
-
+    { 
         RunCharacterInSceneSQLCommand($"INSERT INTO {outfitsTable} " +
             $"(id, name," +
             $" {oIsSimple}, {oLocation})" + 
@@ -332,7 +336,7 @@ public static class DataBaseHandler
     #region Scene
     public static Variant RunSceneSQLCommand(string command)
     {
-        GD.Print(command);
+        //GD.Print(command);
         return ProgramHandler.DB.Call("RunSceneSQLCommand", command);
     }
 
@@ -383,7 +387,7 @@ public static class DataBaseHandler
     public static bool DeleteScene(int id)
     {
         var scene=SelectScene(id);
-        string path = $"characters/{scene[saveLocation]}.db";
+        string path = $"{dataSaveLocation}/{scene[saveLocation]}.db";
         CloseUsedScene();
         GD.Print(path);
         if (!FileLoaderHandler.DeleteFile(path)) return false;

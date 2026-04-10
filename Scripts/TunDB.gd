@@ -12,6 +12,8 @@ var posX="pos_x"
 var posY="pos_y"
 var scale="scale"
 var mirrored="mirrored"
+var sceneOrder="scene_order"
+
 var savedScenesTable="scenes"
 #id
 #name
@@ -151,8 +153,10 @@ func CreateTableSceneData():
 		posX:{"data_type":"REAL"},
 		posY:{"data_type":"REAL"},
 		scale:{"data_type":"REAL"},
+		sceneOrder:{"data_type":"int"},
 		mirrored:{"data_type":"int(2)"},
 	}
+	print(table)
 	#dbScene.drop_table(savedCharactersTable)
 	dbScene.create_table(sceneDataTable,table)
 
@@ -202,6 +206,7 @@ func InsertIntoSceneData(id:String,cid:String,oid:String):
 		posY:0,
 		scale:1,
 		mirrored:0,
+		sceneOrder:0,
 	}
 	dbScene.insert_row(sceneDataTable,data)
 	
@@ -244,16 +249,10 @@ func UpdateLastUsedCScene(id:String):
 	
 
 func DeleteCharacter(id:String):
-	var characterFileLocation= SelectCharacter(id)[0][fileName]
-	
 	dbSavedCharacters.delete_rows(savedCharactersTable,"id="+id)
-	return characterFileLocation
-	
 	
 func DeleteScene(id:String):
-	var characterFileLocation= SelectScene(id)[0][fileName]
 	dbSavedCharacters.delete_rows(savedScenesTable,"id="+id)
-	return characterFileLocation
 	
 func SelectCharacter(id:String):
 	return (dbSavedCharacters.select_rows(savedCharactersTable,"id="+id,["*"]))
@@ -284,12 +283,12 @@ func RunSavedCharactersSQLCommand(commandText:String):
 	dbSavedCharacters.query(commandText);
 	return dbSavedCharacters.query_result;
 func RunCharacterSQLCommand(commandText:String):
-	dbCharacter.query(commandText);
 	print(commandText)
+	dbCharacter.query(commandText);
 	return dbCharacter.query_result;
 	
 func RunSceneSQLCommand(commandText:String):
-	print(dbScene.path)
+	#print(dbScene.path)
 	dbScene.query(commandText);
 	return dbScene.query_result;
 	

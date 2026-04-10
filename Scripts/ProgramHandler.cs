@@ -18,12 +18,14 @@ public partial class ProgramHandler : Node
     private Button newCharacterButton;
     private Button charactersButton;
     private Button saveSceneButton;
+    private Button optionsButton;
     private LineEdit sceneNameLE;
     private Panel scenesPanel;
     private Panel charactersPanel;
     private Node loadedScene;
     public Node scenesContainer;
     public Node charactersContainer;
+    public Control settingsContainer;
     private SceneHandler openScene;
     public CharacterAnimsUI characterAnimationsPanel;
     //private LineEdit characterKey;
@@ -48,6 +50,9 @@ public partial class ProgramHandler : Node
     public static GodotObject DB;
     public FileDialog fileDialog; 
     public AnimUI selectedImage;
+    public LineEdit ipPort;
+    public Button joinButton;
+    public Button hostButton;
     public override void _EnterTree()
     {
 
@@ -56,20 +61,25 @@ public partial class ProgramHandler : Node
         DB = GetNode<Node>("DB");
         loadedCharacters= new List<CharacterSelectUI>();
         loadedScenes = new List<SceneSelectUI>();
-        scenesButton = GetNode<Button>("PC/VBC/SceneC/Button");
-        charactersButton = GetNode<Button>("PC/VBC/CharacterC/Button");
-        newSceneButton = GetNode<Button>("ScenesP/VBC/PC/MC/VBC/NewSceneB/Button");
-        newCharacterButton = GetNode<Button>("CharactersP/VBC/PC/MC/VBC/NewCharacterB/Button");
-        saveSceneButton = GetNode<Button>("ScenesP/VBC/PC/MC/VBC/SaveScene/Button");
-        sceneNameLE = GetNode<LineEdit>("ScenesP/VBC/PC/MC/VBC/SceneName/LineEdit");
-        loadedScene = GetNode("LoadedScene"); 
-        //
-        scenesPanel = GetNode<Panel>("ScenesP");
-        charactersPanel = GetNode<Panel>("CharactersP");
+        scenesButton = GetNode<Button>("MainCL/PC/VBC/SceneC/Button");
+        charactersButton = GetNode<Button>("MainCL/PC/VBC/CharacterC/Button");
+        newSceneButton = GetNode<Button>("MainCL/ScenesP/VBC/PC/MC/VBC/NewSceneB/Button");
+        newCharacterButton = GetNode<Button>("MainCL/CharactersP/VBC/PC/MC/VBC/NewCharacterB/Button");
+        saveSceneButton = GetNode<Button>("MainCL/ScenesP/VBC/PC/MC/VBC/SaveScene/Button");
+        sceneNameLE = GetNode<LineEdit>("MainCL/ScenesP/VBC/PC/MC/VBC/SceneName/LineEdit");
+        loadedScene = GetNode("LoadedScene");
+        optionsButton = GetNode<Button>("MainCL/SettingsP/SettingsB/Button");
+        settingsContainer = GetNode<Control>("MainCL/SettingsP/SettingOptions");
+        ipPort=GetNode<LineEdit>("MainCL/SettingsP/SettingOptions/VC/MC/HC/IP_Port/LineEdit");
+        joinButton=GetNode<Button>("MainCL/SettingsP/SettingOptions/VC/HC/JoinB/Button");
+        hostButton = GetNode<Button>("MainCL/SettingsP/SettingOptions/VC/HC/HostB/Button");
+
+        scenesPanel = GetNode<Panel>("MainCL/ScenesP");
+        charactersPanel = GetNode<Panel>("MainCL/CharactersP");
         nodesToSpawn = SpawnHandler.LoadScenes("res://Scenes/SpawnableScenes/");
-        scenesContainer = GetNode("ScenesP/VBC/ScenesListHolder/SC/ScenesCon");
-        charactersContainer = GetNode("CharactersP/VBC/PC2/SC/CharactersCon");
-        characterAnimationsPanel = GetNode<CharacterAnimsUI>("CharacterAnimations");
+        scenesContainer = GetNode("MainCL/ScenesP/VBC/ScenesListHolder/SC/ScenesCon");
+        charactersContainer = GetNode("MainCL/CharactersP/VBC/PC2/SC/CharactersCon");
+        characterAnimationsPanel = GetNode<CharacterAnimsUI>("MainCL/CharacterAnimations");
         fileDialog = GetNode<FileDialog>("FileDialog");
         //fileDialog.Confirmed += FileFoundAction;
         //characterKey = GetNode<LineEdit>("CharacterAnimations/VC/VCAnimations/PBaseAnim/ScrollContainer/VC/MCActionName/LineEdit");
@@ -100,26 +110,45 @@ public partial class ProgramHandler : Node
     public override void _Ready()
     {
 
+        network = new NetworkManager();
+        network.Name = "NetworkManager";
+        AddChild(network);
         SetupButtons();
         scenesPanel.Hide();
         charactersPanel.Hide();
         characterID=DataBaseHandler.GetNextIDForTable(DataBaseHandler.Table.characters);
         LoadDatabaseData();
-        network = new NetworkManager();
-        network.Name = "NetworkManager";
-        AddChild(network);
+        settingsContainer.Visible = false;
+        optionsButton.ButtonDown += () =>
+        {
+            settingsContainer.Visible = !settingsContainer.Visible;
+        };
         //DataBaseHandler.CreateCharacter("sajt", CharacterType.character_png);
     }
 
 
     public override void _Input(InputEvent e)
     {
+        if (openScene == null) return;
+        if(e is InputEventMouseButton mouseB)
+        {
+            if(mouseB.Pressed)
+            selectedCharacter= openScene.SelectCharacter(mouseB.Position);
+            if (mouseB.IsReleased())
+            {
+                if (selectedCharacter == null) return;
+                selectedCharacter.ToggleUIElements();
+                selectedCharacter.editedCheckForVisibility = false;
+                selectedCharacter = null;
+            }
+        }
 
         if (e is InputEventMouse mouse)
-        {
+        { 
             currentMouseLocation = mouse.Position;
             HandleCharacter(mouse);
             previousMouseLocation = mouse.Position;
+            GD.Print("mouse clicked");
         }
         if (e is InputEventKey key)
         { 
@@ -134,6 +163,7 @@ public partial class ProgramHandler : Node
     {
         if (selectedCharacter == null) return;
         selectedCharacter.CharacterActions(e, currentMouseLocation, previousMouseLocation);
+        GD.Print("characterSelected");
 
     }
     void MirrorCharacter()
@@ -178,9 +208,15 @@ public partial class ProgramHandler : Node
 
         };
         saveSceneButton.ButtonUp += SaveScene;
+        joinButton.ButtonUp += JoinButtonPressed;
+        hostButton.ButtonUp += HostButtonPressed;
+
+
         //OnCharacterSelected += OpenCharacterSettings;
         //OnSceneDeleted += DeleteScene;
     }
+
+
     public SceneSelectUI GetScene(int id)
     {
         GD.Print("Getting scene");
@@ -268,6 +304,34 @@ public partial class ProgramHandler : Node
     }
     #endregion
     #region UI
+
+    private void HostButtonPressed()
+    {
+        //ipPort
+        if(int.TryParse(ipPort.Text.Split(':')[1], out int port))
+        {
+            network.Host(port);
+        }
+        else
+        {
+            GD.Print("Incorrect port set");
+        }
+    }
+
+    private void JoinButtonPressed()
+    {
+        var texts = ipPort.Text.Split(':');
+        if (int.TryParse(texts[1], out int port))
+        {
+            network.Join(texts[0], port);
+        }
+        else
+        {
+            GD.Print("Incorrect port or ip");
+        }
+        //ipPort
+    }
+
     public void ChangeScene(int id)
     {
         OnSceneChange?.Invoke(id == openSceneID?-1:id);
@@ -351,9 +415,9 @@ public partial class ProgramHandler : Node
     }
     public void AddCharacterToDB()
     {
-        GD.Print($"This should add a character to the database");
         characterID = DataBaseHandler.GetNextIDForTable(DataBaseHandler.Table.characters);
-        DataBaseHandler.CreateCharacter(characterID.ToString(), $"Character name {characterID}", CharacterType.character_png);
+        GD.Print("Add Character to DB with id of: "+characterID);
+        DataBaseHandler.CreateCharacter(characterID.ToString(), $"Character name {characterID}", (int)CharacterType.character_png);
         DataBaseHandler.InsertOutfitIntoCharacter(1, characterID, "Normal", false, "default");
         AddAnimation(characterID, 1, "Idle", AnimType.other,1);
         AddAnimation(characterID, 1, "Talk", AnimType.other,2);
@@ -372,7 +436,7 @@ public partial class ProgramHandler : Node
         aID =aID==-1? DataBaseHandler.GetNextIDForTable(DataBaseHandler.Table.outfit_animations):aID;
 
         DataBaseHandler.InsertAnimationIntoCharacter(aID, outfitId, characterId, animName, "default",1f,1,(int)anim,"default");
-        GD.Print($"This should add an animation to the character with this id:{characterID} and with this outfit id:{outfitId} ");
+        GD.Print($"This should add an animation with this id:{aID} to the character with this id:{characterID} and with this outfit id:{outfitId} ");
     }
     public bool DeleteScene(int id)
     {
