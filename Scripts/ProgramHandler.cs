@@ -148,7 +148,7 @@ public partial class ProgramHandler : Node
             currentMouseLocation = mouse.Position;
             HandleCharacter(mouse);
             previousMouseLocation = mouse.Position;
-            GD.Print("mouse clicked");
+            //GD.Print("mouse clicked");
         }
         if (e is InputEventKey key)
         { 
@@ -163,7 +163,7 @@ public partial class ProgramHandler : Node
     {
         if (selectedCharacter == null) return;
         selectedCharacter.CharacterActions(e, currentMouseLocation, previousMouseLocation);
-        GD.Print("characterSelected");
+        //GD.Print("characterSelected");
 
     }
     void MirrorCharacter()
@@ -171,7 +171,7 @@ public partial class ProgramHandler : Node
         if (selectedCharacter == null) return;
         var sc = selectedCharacter;
         sc.mirrored = !sc.mirrored;
-        sc.Flip(sc.mirrored);
+        //sc.Flip(sc.mirrored);
     }
     void SetupButtons()
     {
@@ -297,9 +297,7 @@ public partial class ProgramHandler : Node
         DataBaseHandler.InsertIntoSceneData(
             sceneDataID,
             id, 1);
-        SceneHandler.instance.charactersInScene.Add(new SceneData(sceneDataID, id, 1, 0, 0, 256, false));
-        SceneHandler.instance.AddingCharacter(
-            SceneHandler.instance.charactersInScene[SceneHandler.instance.charactersInScene.Count-1]);
+        SceneHandler.instance.AddingCharacter(new SceneData(sceneDataID, id, 1, 0, 0, 256, false)); 
 
     }
     #endregion
@@ -486,5 +484,6 @@ public partial class ProgramHandler : Node
 
 
     #region Online
+
     #endregion
 }

@@ -14,7 +14,9 @@ public partial class AudioDetector : Node
 	private int _micBusIndex;
 	private float delayTimer;
     string applicationName;
-    public bool isCustom; 
+    public bool isCustom=false;
+    public bool isLocal=false;
+    public bool characterAdded=false;
 	public override void _Ready()
 	{
         // Create a dedicated mic bus
@@ -23,9 +25,10 @@ public partial class AudioDetector : Node
         isCustom=false;
     }
 
-	public override void _Process(double delta)
-	{
+    public override void _Process(double delta)
+    {
         //ProcessTalking(delta);
+        if (!isLocal) return;
 
         if (delayTimer > 0f)
         {
@@ -34,8 +37,9 @@ public partial class AudioDetector : Node
         }
         if (isCustom) MonitorCustomAudio();
         delayTimer = delay;
-         
-        GD.Print(IsTalking);
+
+        //GD.Print(IsTalking);
+        if(ProgramHandler.network.isConnected && characterAdded)
         Rpc("SetIsTalking", IsTalking);
         IsTalking = false;
 
@@ -147,7 +151,7 @@ public partial class AudioDetector : Node
 	 */
 
     [Rpc(mode: MultiplayerApi.RpcMode.AnyPeer, CallLocal = false, TransferMode = MultiplayerPeer.TransferModeEnum.Unreliable)]
-    void SetIsTalking(bool isTalking)
+    public void SetIsTalking(bool isTalking)
     {
         IsTalking = isTalking;
     }

@@ -13,10 +13,13 @@ public static class FileLoaderHandler
 
     public static Image BytesToImage(byte[] bytes) 
     {
-        var img= Image.CreateFromData(512,512,false,Image.Format.Rgba16,bytes);
-        return img!=null?img:null;
-    }
 
+        var image = new Image();
+        image.LoadPngFromBuffer(bytes);
+        //var img= Image.CreateFromData(512,512,false,Image.Format.Rgba16,bytes);
+        return image != null? image : null;
+    }
+     
     public static ImageTexture GetCharacterAnim(string location)
     {
         ImageTexture texture = new ImageTexture();

@@ -1,5 +1,8 @@
 using Godot;
+using Microsoft.VisualBasic;
 using System;
+
+//using System; 
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -30,6 +33,7 @@ public partial class Character : Control
     Button characterInteractButton;
     OptionButton selectedOutfit;
     Button deleteCharacterFromScene;
+    Button joinWithCharacterButton;
     [Export]
     public Vector2 position;
     [Export]
@@ -41,14 +45,19 @@ public partial class Character : Control
     public bool isEdited;
     public bool isSimple;
     public bool isOnlineCharacter;
+    public bool isLoaded;
     public bool editedCheckForVisibility=false;
-    bool uiIsVisible=false;
+    bool uiIsVisible=true;
+    public Godot.Collections.Array<float> frameLenghts;
+    public Action characterJoinedToLobby;
+    
     public override void _EnterTree()
     {
         //blink=new List<ImageTexture>();
         outfitAnimations=new Dictionary<string, OAnim>();
         audioDetector=new AudioDetector();
-        isBaseOutfitloaded = false;
+        audioDetector.Name = "AudioDetector";
+        isBaseOutfitloaded = false; 
         AddChild(audioDetector);
         /*for (int i = 1; i < 6; i++) 
         {
@@ -63,6 +72,8 @@ public partial class Character : Control
         characterInteractButton = GetNode<Button>("VC/CInteractButton");
         selectedOutfit = GetNode<OptionButton>("VC/HC/MCOutfits/OptionButton");
         deleteCharacterFromScene = GetNode<Button>("VC/HC/MCDelete/Button");
+        joinWithCharacterButton = GetNode<Button>("VC/MCJoin/Button");
+        
         selectedOutfit.ItemSelected += ChangeOutfit;
         //mirrored = true;
         //give animation cycle speed
@@ -94,6 +105,41 @@ public partial class Character : Control
             //editedCheckForVisibility = false;
         };*/
         deleteCharacterFromScene.ButtonUp += DeleteCharacterPopup;
+        joinWithCharacterButton.ButtonUp += JoinToLobbyWithThisCharacter;
+    }
+
+    public void VisibleJoinCharacterB(bool visibility)
+    {
+        joinWithCharacterButton.Visible=visibility;
+    }
+    //[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = false, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    private void JoinToLobbyWithThisCharacter()
+    {
+        Name = $"player {ProgramHandler.network.LocalPeerId}";
+        //Rpc(NetworkManager.MethodName.SpawnRemoteCharacter, ProgramHandler.network.LocalPeerId, SendFrameLengths(), Name);
+        ProgramHandler.network.AddPlayerToConnection(ProgramHandler.network.LocalPeerId,
+            new SceneData(
+                SceneHandler.instance.GetHighestIDForOnline(), Name,this
+            ));
+        GD.Print(ProgramHandler.network.connectedPlayers.Count); 
+        ProgramHandler.network.SpawnRemoteCharacter(ProgramHandler.network.LocalPeerId,SendFrameLengths(),Name);
+        VisibleJoinCharacterB(false);
+        ProgramHandler.network.joinedWithCharacter = true;
+        /*foreach (var item in ProgramHandler.network.connectedPlayers)
+        {
+            if (item.Key == ProgramHandler.network.LocalPeerId) continue;
+            ProgramHandler.network.SendImageDataInPieces(ProgramHandler.network.SerializeAnims(SendAnimationFrames()), item.Key, peerId);
+            //Rpc(NetworkManager.MethodName.SendImageDataInPieces, ProgramHandler.network.SerializeAnims(SendAnimationFrames()), item.Key, ProgramHandler.network.LocalPeerId);
+
+        }*/
+        audioDetector.characterAdded = true;
+        characterJoinedToLobby.Invoke();
+    }
+
+    public void SendImageDataToPlayer(long targetPeerID)
+    {
+        ProgramHandler.network.SendImageDataInPieces(ProgramHandler.network.SerializeAnims(SendAnimationFrames()), targetPeerID, ProgramHandler.network.LocalPeerId);
+
     }
 
     public void ToggleUIElements()
@@ -167,14 +213,14 @@ public partial class Character : Control
     {
         var charactersData= DataBaseHandler.GetCharacterInSaves(characterID.ToString());
         var sceneData=DataBaseHandler.GetCharacterInScene(sceneID.ToString());
-        GD.Print("Settting up character sdfkljhskfsdjhsdjkfhsdkjh");
-        GD.Print(characterID);
-        GD.Print(sceneData);
+        GD.Print("Settting up character");
+        //GD.Print(characterID);
+        //GD.Print(sceneData);
         if (sceneData == null) return;
         GD.Print("Character setup");
         outfitID= sceneData[DataBaseHandler.outfitID].AsInt32();
         var cData= DataBaseHandler.GetOutfit(characterID, outfitID);
-
+        audioDetector.isLocal = true;
         cName = charactersData["name"].AsString();
         isSimple = cData == null?false: cData[DataBaseHandler.oIsSimple].AsBool();
         mirrored= sceneData[DataBaseHandler.mirrored].AsBool();
@@ -191,17 +237,12 @@ public partial class Character : Control
         foreach (Godot.Collections.Dictionary outfit in outfits)
         {
             selectedOutfit.AddItem(outfit["name"].AsString(), (int)outfit["id"]);
-            GD.Print("asdasasdasdasdasdasdasd");
             GD.Print((int)outfit["id"]);
-            GD.Print(outfit["name"]);
-            GD.Print("asdasasdasdasdasdasdasd");
+            GD.Print(outfit["name"]); 
         }
         GD.Print("selected outfits");
         for (int i = 0; i < selectedOutfit.ItemCount; i++)
         {
-            GD.Print("i:"+i);
-            GD.Print(selectedOutfit.GetItemId(i));
-            GD.Print(selectedOutfit.GetItemText(i));
             if(selectedOutfit.GetItemId(i)== outfitID)
             {
                 selectedOutfit.Select(i);
@@ -221,6 +262,92 @@ public partial class Character : Control
                 break;
         }
         // type = charactersData[DataBaseHandler.cCharacterType].AsString();
+    }
+
+    public void SetupOnlineAnimations(Godot.Collections.Dictionary<string, Godot.Collections.Array<byte[]>>anims, Godot.Collections.Array<float> frameLenghts,bool isSimple)
+    {
+        outfitTexture.Visible = isSimple;
+        audioDetector.isLocal = false;
+        type = (CharacterType)0;
+        //Idle   0
+        //Talk   1
+        //Blink  2
+        //outfit 3
+        outfitTexture.Texture = null;
+        if (isSimple)
+            outfitTexture.Texture =
+                FileLoaderHandler.GetCharacterAnim( 
+                FileLoaderHandler.BytesToImage(anims["outfit"][0]));
+
+        mainTexture.Texture =
+            FileLoaderHandler.GetCharacterAnim(
+            FileLoaderHandler.BytesToImage(anims["Idle"][0]));
+
+        mouthTexture.Texture =
+            FileLoaderHandler.GetCharacterAnim(
+            FileLoaderHandler.BytesToImage(anims["Talk"][0]));
+
+        eyesTexture.Texture =
+            FileLoaderHandler.GetCharacterAnim(
+            FileLoaderHandler.BytesToImage(anims["Blink"][0]));
+        int i = 0;
+        foreach (var item in anims)
+        {
+            GD.Print(frameLenghts.Count);
+            outfitAnimations.Add(item.Key, new OAnim( item.Value.ToList(), frameLenghts[i]));
+            i++;
+        }
+    }
+
+    public Godot.Collections.Dictionary<string, Godot.Collections.Array<byte[]>> SendAnimationFrames()
+    {
+        Godot.Collections.Dictionary<string, Godot.Collections.Array<byte[]>> animsToSend=new Godot.Collections.Dictionary<string, Godot.Collections.Array<byte[]>>();
+        GD.Print($"outfitAnimations count: {outfitAnimations.Count}");
+        foreach (var animSequence in outfitAnimations)
+        {
+            animsToSend.Add(animSequence.Key, new Godot.Collections.Array<byte[]>());
+            foreach (var anim in animSequence.Value.animationSequence)
+            {
+                animsToSend[animSequence.Key].Add(FileLoaderHandler.ImageToBytes(anim.GetImage()));
+            }
+        }
+        return animsToSend;
+    }
+
+    private Godot.Collections.Dictionary ToVariantDict(
+    Godot.Collections.Dictionary<string, Godot.Collections.Array<Godot.Collections.Array<byte>>> data)
+    {
+        var result = new Godot.Collections.Dictionary();
+
+        foreach (var dataVal in data)
+        {
+            var outerArray = new Godot.Collections.Array();
+
+            foreach (var innerArray in dataVal.Value)
+            {
+                var byteArray = new Godot.Collections.Array();
+                foreach (var byt in innerArray)
+                    byteArray.Add(Variant.From(byt));
+
+                outerArray.Add(byteArray);
+            }
+
+            result[dataVal.Key] = outerArray;
+        }
+
+        return result;
+    }
+
+
+    public Godot.Collections.Array<float> SendFrameLengths()
+    {
+
+        Godot.Collections.Array<float> frames=new Godot.Collections.Array<float>();
+        foreach (var item in outfitAnimations)
+        {
+            frames.Add(item.Value.frameLength);
+        }
+        return frames;
     }
 
     public void SetSize(Vector2 scale)
@@ -262,6 +389,7 @@ public partial class Character : Control
 
     public void Blink(float delta)
     {
+        if (outfitAnimations.Count < 1) return;
         if (blinkTimer > 0)
         {
             blinkTimer -= delta;
@@ -286,6 +414,7 @@ public partial class Character : Control
 
     public void Talking(float delta)
     {
+        if (outfitAnimations.Count < 1) return;
         if (talkFrameTimer > 0)
         {
             talkFrameTimer -= delta;
@@ -359,7 +488,7 @@ public partial class Character : Control
         float y=pos.Y;
         return (x > xPosMin && y > yPosMin &&
             x < xPosMax && y < yPosMax);
-    }
+    }/*
     public void SetupOnlineAnimations()
     {
         GD.Print("implement online animations at 197 in character");
@@ -377,10 +506,11 @@ public partial class Character : Control
                 (AnimType)anim[DataBaseHandler.oAnimType].AsInt32(),
                 anim[DataBaseHandler.oAnimExtraInfo].AsString()
                 ));
-            */
+             
         
 
     }
+    */
     public void DeleteCharacterPopup()
     {
         ConfirmUI.Instance.SetConfirm($"Delete character: {cName}", DeleteCharacter);
@@ -396,7 +526,8 @@ public partial class Character : Control
             ProgramHandler.network.RemoveOnlinePlayerFromScene(peerId);
         }
         UnsubingFromAudioHandling();
-        QueueFree(); 
+        characterJoinedToLobby = null;
+        QueueFree();
     }
 
     void LoadAnimationsInOutfit(int outfitID, bool isSimple, string simpleOutfit="not loaded")
@@ -430,10 +561,7 @@ public partial class Character : Control
                 ));
         }
         isBaseOutfitloaded = isSimple||outfitID==1;
-        GD.Print("outfit loaded");
-        GD.Print(isBaseOutfitloaded);
-        GD.Print(isSimple);
-        GD.Print(outfitID);
+        GD.Print("outfit loaded"); 
 
 
     }
@@ -441,5 +569,5 @@ public partial class Character : Control
     public void UnsubingFromAudioHandling()
     {
         audioDetector.RemovingAudio();
-    }
+    } 
 }

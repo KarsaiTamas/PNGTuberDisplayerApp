@@ -3,6 +3,7 @@ using Godot.Collections;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 public partial class SceneHandler : Node
 {
@@ -10,12 +11,19 @@ public partial class SceneHandler : Node
     public int sceneID;
     public List<SceneData> charactersInScene;
     public bool sceneModified=false;
-     
-    /*
+
     public override void _Ready()
     {
-        LoadScene();
-    }*/
+
+        ProgramHandler.network.OnHosted += TurnOnJoinToSceneButtons;
+        ProgramHandler.network.OnJoined += TurnOnJoinToSceneButtons;
+    }
+    public override void _ExitTree()
+    {
+        ProgramHandler.network.OnHosted -= TurnOnJoinToSceneButtons;
+        ProgramHandler.network.OnJoined -= TurnOnJoinToSceneButtons;
+
+    }
     public Character SelectCharacter(Vector2 mousePos)
     {
         var inBoundCharacters = charactersInScene.Where(c => c.character.InSelectionZone(mousePos)).OrderBy(e=>e.character.order).FirstOrDefault();
@@ -34,7 +42,7 @@ public partial class SceneHandler : Node
         if (sceneDatas == null) return;
         foreach (Dictionary d in sceneDatas)
         {
-            charactersInScene.Add(
+            AddingCharacter(
                 new SceneData(
                     d["id"].AsInt32(), 
                     d[DataBaseHandler.characterID].AsInt32(),
@@ -46,16 +54,18 @@ public partial class SceneHandler : Node
         }
         GD.Print($"Scene ID:{sceneID}");
         GD.Print($"Characters in scene: {charactersInScene.Count}");
-        foreach (var item in charactersInScene)
+        /*foreach (var item in charactersInScene)
         {
             AddingCharacter(item);
             GD.Print("spawning character to scene");
-        }
+        }*/
     }
     public void AddingCharacter(SceneData data)
     {
         data.character=(Character)SpawnHandler.Spawn(SpawnableScenes.Character, this);
-        GD.Print(data.character.Name);
+        data.character.characterJoinedToLobby += TurnOffJoinToSceneButtons;
+        data.character.VisibleJoinCharacterB(!ProgramHandler.network.joinedWithCharacter && ProgramHandler.network.isConnected);
+        GD.Print(data.character.Name); 
         data.character.sceneID = data.ID;
         data.character.characterID = data.characterID;
         data.character.outfitID = data.outfitID;
@@ -68,7 +78,55 @@ public partial class SceneHandler : Node
         data.character.isOnlineCharacter = false;
         data.character.SetupCharacter();
         data.character.SetupAnimations(data.outfitID);
+        data.character.isLoaded = true;
+        charactersInScene.Add(data);
     }
+
+    public void AddOnlineCharacter(SceneData data, long peerID, string nodeName, Godot.Collections.Array<float> frames)
+    {
+
+        data.character = (Character)SpawnHandler.Spawn(SpawnableScenes.Character, this);
+        data.character.VisibleJoinCharacterB(false);
+        GD.Print(data.character.Name);
+        data.character.sceneID = data.ID;
+        data.character.peerId = peerID;
+        data.character.characterID = data.characterID;
+        data.character.PivotOffsetRatio = new Vector2(0, 0);
+        data.character.GlobalPosition = new Vector2(data.posX, data.posY);
+        data.character.mirrored = data.mirrored;
+        data.character.Flip(data.character.mirrored);
+        data.character.PivotOffsetRatio = new Vector2(0.5f, 0.5f);
+        data.character.isOnlineCharacter = true;
+        data.character.SetupOnlineCharacter();
+        data.character.frameLenghts = frames;
+        data.character.Name = nodeName;
+        charactersInScene.Add(data);
+
+    }
+    /*
+    public void LoadOnlineCharacter(SceneData data, long peerID, string nodeName, Godot.Collections.Array<float> frameLenghts)
+    {
+
+        data.character = (Character)SpawnHandler.Spawn(SpawnableScenes.Character, this);
+        data.character.VisibleJoinCharacterB(false);
+        GD.Print(data.character.Name);
+        data.character.sceneID = data.ID;
+        data.character.peerId = peerID;
+        data.character.characterID = data.characterID;
+        data.character.PivotOffsetRatio = new Vector2(0, 0);
+        data.character.GlobalPosition = new Vector2(data.posX, data.posY);
+        data.character.mirrored = data.mirrored;
+        data.character.Flip(data.character.mirrored);
+        data.character.PivotOffsetRatio = new Vector2(0.5f, 0.5f);
+        data.character.isOnlineCharacter = true;
+        data.character.SetupOnlineCharacter();
+        data.character.frameLenghts = frameLenghts;
+        data.character.Name = nodeName;
+        charactersInScene.Add(data);
+
+    }
+    */
+
     public void SaveScene()
     {
         foreach (var c in charactersInScene)
@@ -99,10 +157,26 @@ public partial class SceneHandler : Node
        return charactersInScene.Max(c => c.ID)+1000;
     }
 
+    public void TurnOffJoinToSceneButtons()
+    {
+        foreach (var car in charactersInScene)
+        {
+            car.character.VisibleJoinCharacterB(false);
+        }
+    }
+
+    public void TurnOnJoinToSceneButtons()
+    {
+        foreach (var car in charactersInScene)
+        {
+            car.character.VisibleJoinCharacterB(true);
+        }
+    }
     public override void _Process(double delta)
     {
         foreach (var item in charactersInScene)
         {
+            if (!item.character.isLoaded) continue;
             if(item.character.type== CharacterType.character_png)
             {
                 item.character.Blink((float)delta);

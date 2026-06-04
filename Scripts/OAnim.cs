@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 public class OAnim  
 {
@@ -49,5 +50,21 @@ public class OAnim
         this.frameLength = frameLength;
         animType = AnimType.other;
         extraAnimInfo = "outside";
+        curFrame = 0;
+    }
+    public OAnim(Godot.Collections.Array<Godot.Collections.Array<byte>> byteAnimationSequence, float frameLength)
+    {
+        animationSequence = new List<ImageTexture>();
+        foreach (var animFrame in byteAnimationSequence)
+        {
+            byte[] convFrame = animFrame.ToArray();
+            var img = FileLoaderHandler.BytesToImage(convFrame);
+            animationSequence.Add(
+                FileLoaderHandler.GetCharacterAnim(img));
+        }
+        this.frameLength = frameLength;
+        animType = AnimType.other;
+        extraAnimInfo = "outside";
+        curFrame = 0;
     }
 }
