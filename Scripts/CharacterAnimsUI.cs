@@ -40,6 +40,7 @@ public partial class CharacterAnimsUI : Control
         simpleOutfitToggle = GetNode<CheckButton>("HC/VCAnims/VCAnimations/IsSimple/CheckButton");
         characterTypeButton=GetNode<OptionButton>("HC/VCAnims/VCAnimations/CharacterType/OptionButton");
         closeButton=GetNode<Button>("HC/VCAnims/HC/Closer/Button");
+        //
         //HC/VCAnims/VCAnimations/IsSimple/CheckButton
         //HC/VCAnims/VCAnimations/SimpleOutfit/MCAnimChange/Button
         //HC/VCAnims/CharacterName/LineEdit
@@ -89,14 +90,19 @@ public partial class CharacterAnimsUI : Control
         characterTypeButton.ItemSelected += CharacterTypeChanged;
     }
 
+
+
     private void CharacterTypeChanged(long index)
     {
         data.characterType=(CharacterType)index;
+        UpdateCharacterUIType();
     }
 
     public void ChangeOutfit(int newOutfit)
     {
         DataHandler.LoadOutfitToUI(newOutfit);
+        UpdateCharacterUIType();
+
         /*data.selectedOutfit = newOutfit;
         if (newOutfit == 1) removeOutfitButton.Hide();
         else removeOutfitButton.Show();
@@ -125,6 +131,23 @@ public partial class CharacterAnimsUI : Control
         data.anims.Clear();
         AddExistingAnims();
         LoadAnims();
+    }
+    void UpdateCharacterUIType()
+    {
+        switch (data.characterType)
+        {
+            case CharacterType.character_png:
+            default:
+                AddNewAnimButton.Show();
+                data.anims[1..(data.anims.Count)].ForEach(e => e.Show());
+                break;
+            case CharacterType.prop:
+                GD.Print("this is a prop");
+                AddNewAnimButton.Hide();
+                data.anims[1..(data.anims.Count )].ForEach(e => e.Hide());
+
+                break;
+        }
     }
     void AddExistingAnims()
     {
@@ -242,7 +265,6 @@ public partial class CharacterAnimsUI : Control
         DataBaseHandler.InsertOutfitIntoCharacter(oID, data.characterID, $"outfit{oID}", true, "default");
         outFitUI.SetupOutfit(data.characterID,oID );
         var aID = DataBaseHandler.GetNextIDForTable(DataBaseHandler.Table.outfit_animations, data.characterID);
-        outFitUI.SetupOutfit(oID, data.characterID);
         ProgramHandler.instance.AddAnimation(data.characterID, oID, "Idle", AnimType.other, aID);
         ProgramHandler.instance.AddAnimation(data.characterID, oID, "Talk", AnimType.other, aID+1);
         ProgramHandler.instance.AddAnimation(data.characterID, oID, "Blink", AnimType.other, aID+2);

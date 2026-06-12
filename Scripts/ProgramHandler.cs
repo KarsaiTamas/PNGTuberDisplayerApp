@@ -53,6 +53,7 @@ public partial class ProgramHandler : Node
     public LineEdit ipPort;
     public Button joinButton;
     public Button hostButton;
+    public Button showHideIPPortButton;
     public override void _EnterTree()
     {
 
@@ -73,6 +74,7 @@ public partial class ProgramHandler : Node
         ipPort=GetNode<LineEdit>("MainCL/SettingsP/SettingOptions/VC/MC/HC/IP_Port/LineEdit");
         joinButton=GetNode<Button>("MainCL/SettingsP/SettingOptions/VC/HC/JoinB/Button");
         hostButton = GetNode<Button>("MainCL/SettingsP/SettingOptions/VC/HC/HostB/Button");
+        showHideIPPortButton = GetNode<Button>("MainCL/SettingsP/SettingOptions/VC/MC/HC/ShoHideIPPort/Button");
 
         scenesPanel = GetNode<Panel>("MainCL/ScenesP");
         charactersPanel = GetNode<Panel>("MainCL/CharactersP");
@@ -122,6 +124,7 @@ public partial class ProgramHandler : Node
         optionsButton.ButtonDown += () =>
         {
             settingsContainer.Visible = !settingsContainer.Visible;
+            ipPort.Secret = true;
         };
         //DataBaseHandler.CreateCharacter("sajt", CharacterType.character_png);
     }
@@ -154,7 +157,7 @@ public partial class ProgramHandler : Node
         { 
             if (key.AsText().ToUpper().Equals(keyToPress)) GD.Print(key.AsText()); 
             if (key.Keycode.Equals(Key.F) && key.IsReleased())
-            {
+            { 
                 MirrorCharacter();
             }
         }
@@ -169,9 +172,9 @@ public partial class ProgramHandler : Node
     void MirrorCharacter()
     {
         if (selectedCharacter == null) return;
-        var sc = selectedCharacter;
+        var sc = selectedCharacter; 
         sc.mirrored = !sc.mirrored;
-        //sc.Flip(sc.mirrored);
+        sc.Flip(sc.mirrored);
     }
     void SetupButtons()
     {
@@ -211,6 +214,8 @@ public partial class ProgramHandler : Node
         joinButton.ButtonUp += JoinButtonPressed;
         hostButton.ButtonUp += HostButtonPressed;
 
+        showHideIPPortButton.ButtonDown += () => { ipPort.Secret = false; };
+        showHideIPPortButton.ButtonUp += () => { ipPort.Secret = true; };
 
         //OnCharacterSelected += OpenCharacterSettings;
         //OnSceneDeleted += DeleteScene;

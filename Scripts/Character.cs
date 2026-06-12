@@ -252,7 +252,7 @@ public partial class Character : Control
 
         switch (type)
         {
-            case CharacterType.character_png:
+            case CharacterType.character_png: 
                 break;
             case CharacterType.prop:
             default: 
