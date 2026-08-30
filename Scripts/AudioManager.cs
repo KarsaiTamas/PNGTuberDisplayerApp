@@ -84,16 +84,19 @@ public partial class AudioManager : Node
     } 
     public void RemovingAudio(string device)
     {
+        if (!audioDetectors.ContainsKey(device)) return;
         audioDetectors[device].StopMonitoring();
         audioDetectors[device].Dispose();
         audioDetectors.Remove(device);
     }
     public void AddCharacter(string device,Character character)
     {
+        if (!audioDetectors.ContainsKey(device)) return;
         audioDetectors[device].characterList.Add(character);
     }
     public void RemoveCharacter(string device, Character character)
     {
+        if (!audioDetectors.ContainsKey(device)) return;
         audioDetectors[device].characterList.Remove(character);
         if (audioDetectors[device].characterList.Count == 0) RemovingAudio(device);
     }

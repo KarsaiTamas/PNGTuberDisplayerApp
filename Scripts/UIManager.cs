@@ -52,6 +52,7 @@ public partial class UIManager : Node
     private MenuButton networkMB;
     private MenuButton helpMB;
     public CharacterManager characterEditor;
+    public Control controlsUI;
     public List<Character> charactersOnScene;
     #endregion
 
@@ -75,6 +76,7 @@ public partial class UIManager : Node
         characterMB = GetNode<MenuButton>("/root/Control/UICL/TopBarMenu/HC/CharacterMB");
         networkMB = GetNode<MenuButton>("/root/Control/UICL/TopBarMenu/HC/NetworkMB");
         helpMB = GetNode<MenuButton>("/root/Control/UICL/TopBarMenu/HC/HelpMB");
+        controlsUI = GetNode<Control>("/root/Control/UICL/ControlsPC");
         sceneOptionsPM = new PopupMenu();
         sceneOptionsPM.Name = "SceneOptionsPM"; 
         characterOptionsPM = new PopupMenu();
@@ -84,8 +86,9 @@ public partial class UIManager : Node
          
         
          */
+        GetNode<Button>("/root/Control/UICL/ControlsPC/VBoxContainer/Button").ButtonDown += ToggleControlsUI;
         fileLoader.FileSelected += FileDialogueFileSelect;
-
+        controlsUI.Visible = false;
         AddItemsToPopup(sceneMB.GetPopup(), 
             ("Create Scene", false), 
             ("Open Scene", sceneOptionsPM), 
@@ -200,6 +203,7 @@ public partial class UIManager : Node
         {
             case EHelpMenu.Controls:
             default:
+                ToggleControlsUI();
                 break;
             case EHelpMenu.CreateScene:
                 break;
@@ -209,7 +213,7 @@ public partial class UIManager : Node
     }
     private void SceneOptionsPressed(long id)
     {
-        if(id == 0)
+        if((int)id == 0)
         {
             SaveLoadManager.OpenFileDialogueForScene();
             return;
@@ -284,9 +288,14 @@ public partial class UIManager : Node
             (int)EMultiplayerMenu.Host);
 
     }
+
     public void ToggleAddToSceneButton(bool isDisabled)
     {
         characterEditor.addToSceneButton.Disabled = !isDisabled;
+    }
+    public void ToggleControlsUI()
+    {
+        controlsUI.Visible = !controlsUI.Visible;
     }
     public void ResetCharacterEditor()
     {
