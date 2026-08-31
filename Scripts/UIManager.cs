@@ -39,8 +39,7 @@ public partial class UIManager : Node
     private enum EHelpMenu
     {
         Controls,
-        CreateScene,
-        CreateCharacter
+        CharacterHowTo,
     }
     #endregion
 
@@ -53,6 +52,7 @@ public partial class UIManager : Node
     private MenuButton helpMB;
     public CharacterManager characterEditor;
     public Control controlsUI;
+    public Control characterHowToUI;
     public List<Character> charactersOnScene;
     #endregion
 
@@ -77,6 +77,8 @@ public partial class UIManager : Node
         networkMB = GetNode<MenuButton>("/root/Control/UICL/TopBarMenu/HC/NetworkMB");
         helpMB = GetNode<MenuButton>("/root/Control/UICL/TopBarMenu/HC/HelpMB");
         controlsUI = GetNode<Control>("/root/Control/UICL/ControlsPC");
+        characterHowToUI = GetNode<Control>("/root/Control/UICL/CharacterHowToPC");
+        
         sceneOptionsPM = new PopupMenu();
         sceneOptionsPM.Name = "SceneOptionsPM"; 
         characterOptionsPM = new PopupMenu();
@@ -87,6 +89,7 @@ public partial class UIManager : Node
         
          */
         GetNode<Button>("/root/Control/UICL/ControlsPC/VBoxContainer/Button").ButtonDown += ToggleControlsUI;
+        GetNode<Button>("/root/Control/UICL/CharacterHowToPC/VBoxContainer/Button").ButtonDown += ToggleCharacterHowToUI;
         fileLoader.FileSelected += FileDialogueFileSelect;
         controlsUI.Visible = false;
         AddItemsToPopup(sceneMB.GetPopup(), 
@@ -115,8 +118,7 @@ public partial class UIManager : Node
 
         AddItemsToPopup(helpMB.GetPopup(), 
             ("Show Controls", false), 
-            ("How to make scene", false),
-            ("How to make character", false));
+            ("Character creator how to: ", false));
         helpMB.GetPopup().IdPressed += HelpMenuBPressed;
 
         sceneOptionsPM.IdPressed += SceneOptionsPressed;
@@ -205,12 +207,13 @@ public partial class UIManager : Node
             default:
                 ToggleControlsUI();
                 break;
-            case EHelpMenu.CreateScene:
-                break;
-            case EHelpMenu.CreateCharacter:
+            case EHelpMenu.CharacterHowTo:
+                ToggleCharacterHowToUI();
                 break;
         }
     }
+
+
     private void SceneOptionsPressed(long id)
     {
         if((int)id == 0)
@@ -267,6 +270,10 @@ public partial class UIManager : Node
         ToggleMenuButtonOptions(sceneMB.GetPopup(), isDisabled,(int)ESceneMenus.SaveScene, (int)ESceneMenus.DeleteScene);
     }
 
+    private void ToggleCharacterHowToUI()
+    {
+        characterHowToUI.Visible = !characterHowToUI.Visible;
+    }
     public void ToggleCharacterMenuButtons(bool isDisabled)
     {
         ToggleMenuButtonOptions(characterMB.GetPopup(), isDisabled, 
