@@ -46,14 +46,34 @@ public partial class ProgramManager : Node
             character.Blink((float)delta);
             character.BaseAnimation((float)delta);
             character.Talk((float)delta); 
+            
         }
     }
-
+    bool isHosting=false;
+    bool isJoined=false;
     public override void _Input(InputEvent e)
-    { 
+    {/*
+        if (e is InputEventKey key1)
+        {
+            if (key1.Keycode.Equals(Key.H) && key1.IsReleased())
+            {
+                if (isHosting) return;
+                isHosting = true;
+                isJoined = true;
+                NetworkManager.instance.HostLocalServer();
+            }
+            if (key1.Keycode.Equals(Key.J) && key1.IsReleased())
+            {
+                if (isJoined) return;
+                isHosting = true;
+                isJoined = true;
+                NetworkManager.instance.JoinLocalServer();
+            }
+        }*/
         if (spawnedCharacters.Count == 0) return;
         if (CharacterManager.instance.Visible) return;
-        if (e is InputEventMouseButton mouseB)
+        
+            if (e is InputEventMouseButton mouseB)
         {
             if (mouseB.Pressed)
             {
@@ -77,6 +97,7 @@ public partial class ProgramManager : Node
         if (e is InputEventMouse mouse)
         {
             currentMouseLocation = mouse.Position;
+            GD.Print("asdasd");
             SceneManager.instance.isEdited=selectedCharacter.CharacterMovement(mouse,currentMouseLocation,previousMouseLocation);
             previousMouseLocation = mouse.Position;
             //GD.Print("mouse clicked");
@@ -88,19 +109,29 @@ public partial class ProgramManager : Node
 
             if (key.Keycode.Equals(Key.F) && key.IsReleased()) SceneManager.instance.isEdited= selectedCharacter.MirrorCharacter();
             
-            if(key.Keycode.Equals(Key.Up) && key.IsReleased()) selectedCharacter.ChangeCharacterLayer(1);
+            if((key.Keycode.Equals(Key.Up) || key.Keycode.Equals(Key.W)) && key.IsReleased()) selectedCharacter.ChangeCharacterLayer(1);
             
-            if (key.Keycode.Equals(Key.Down) && key.IsReleased()) selectedCharacter.ChangeCharacterLayer(-1);
+            if ((key.Keycode.Equals(Key.Down) || key.Keycode.Equals(Key.S)) && key.IsReleased()) selectedCharacter.ChangeCharacterLayer(-1);
             
         }
     }
     void SelectCharacter(Vector2 pos)
     {
-        selectedCharacter = spawnedCharacters.Where(c => c.InSelectionZone(pos)).OrderBy(e=>e.data.layer).LastOrDefault();
+        selectedCharacter = spawnedCharacters.Where(c => c.InSelectionZone(pos) && !c.isEditor).OrderBy(e=>e.data.layer).LastOrDefault();
     }
     void DeselectCharacter()
     {
         selectedCharacter = null;
     }
-
+    public void ReloadCharactersByID(string ID)
+    {
+        foreach (var character in GetSpawnedCharactersByID(ID))
+        {
+            character.LoadCharacterData(SaveLoadManager.GetCharacterIntID(ID));
+        }
+    }
+    public List<Character> GetSpawnedCharactersByID(string ID)
+    {
+        return spawnedCharacters.Where(c => c.data.ID.Equals(ID)).ToList();
+    }
 }

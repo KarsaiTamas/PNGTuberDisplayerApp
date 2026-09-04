@@ -17,7 +17,7 @@ public partial class AudioDetector : IDisposable
     private bool _disposed;
     public bool isCustom;
     public List<Character> characterList=new List<Character>();
-
+    private MMDeviceEnumerator customAudioDevice;
     /// <summary>Fired continuously while monitoring. Provides peak volume 0.0 - 1.0 and dB level.</summary>
     //public event Action<float, float>? OnVolumeChanged;
 
@@ -72,11 +72,15 @@ public void UseInputDevice(int deviceIndex)
     _capture = new WasapiCapture(_device);
     AttachDataHandler();
 }
-public bool SetDeviceToUse(string deviceName, bool isCustom)
-{
-    appName = deviceName;
-    this.isCustom = isCustom;
-    if (isCustom) return true;
+    public bool SetDeviceToUse(string deviceName, bool isCustom)
+    {
+        appName = deviceName;
+        this.isCustom = isCustom;
+        if (isCustom) 
+        {
+            GetCustomProsessForAudio(deviceName);
+            return true; 
+        }
     var inputDevices = AudioManager.GetInputDevices().ToList();
     int index = inputDevices.IndexOf(deviceName);
     GD.Print($"Setting device to use: {deviceName}");
@@ -119,10 +123,12 @@ public void UseOutputDevice(int deviceIndex)
 /// Returns the peak volume as a float (0.0 - 1.0), or -1 if not found.
 /// Note: This is a snapshot, not a continuous monitor. Call repeatedly to poll.
 /// </summary>
-public static float GetApplicationVolume(string processName)
+public float GetApplicationVolume(string processName)
 {
-    using var enumerator = new MMDeviceEnumerator();
-    using var device = enumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
+        if (customAudioDevice == null) return -1f;
+
+    //using var enumerator = new MMDeviceEnumerator();
+    using var device = customAudioDevice.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
 
     var sessions = device.AudioSessionManager.Sessions;
     for (int i = 0; i < sessions.Count; i++)
@@ -130,8 +136,9 @@ public static float GetApplicationVolume(string processName)
         var session = sessions[i];
         try
         {
+                
             uint pid = session.GetProcessID;
-            var process = System.Diagnostics.Process.GetProcessById((int)pid);
+            var process = System.Diagnostics.Process.GetProcessById((int)pid); 
             if (process.ProcessName.Equals(processName, StringComparison.OrdinalIgnoreCase))
             {
                 return session.AudioMeterInformation.MasterPeakValue;
@@ -144,6 +151,33 @@ public static float GetApplicationVolume(string processName)
     }
     return -1f;
 }
+
+public void GetCustomProsessForAudio(string processName)
+{
+        customAudioDevice = new MMDeviceEnumerator();
+          //customAudioDevice = enumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
+        /*
+        var sessions = device.AudioSessionManager.Sessions;
+        for (int i = 0; i < sessions.Count; i++)
+        {
+            var session = sessions[i];
+            try
+            {
+                uint pid = session.GetProcessID;
+                var process = System.Diagnostics.Process.GetProcessById((int)pid);
+                if (process.ProcessName.Equals(processName, StringComparison.OrdinalIgnoreCase))
+                {
+                    customAudioSession= session;
+                }
+            }
+            catch
+            {
+                // Process may have exited; skip it.
+                customAudioSession= null;
+            }
+        }
+        customAudioSession= null;*/
+    }
 
 /// <summary>
 /// Lists all applications currently producing audio, with their process names and peak volumes.
@@ -213,8 +247,9 @@ private void AttachDataHandler()
         CurrentVolume = peak;
         CurrentVolumeDb = db; 
         foreach (var chara in characterList)
-        {
-            chara.isTalking = peak*10 >= chara.data.talkingMinVolume;
+        { 
+            chara.isTalking = peak*50 >= chara.data.talkingMinVolume;
+            
         } 
     };
 }
@@ -224,7 +259,7 @@ private void AttachDataHandler()
         float twitchBotSound = GetApplicationVolume(appName);
         foreach (var chara in characterList)
         {
-            chara.isTalking = twitchBotSound > chara.data.talkingMinVolume;
+            chara.isTalking = twitchBotSound*50 > chara.data.talkingMinVolume;
         }
     }
     private static float CalculatePeakVolume(byte[] buffer, int bytesRecorded, WaveFormat format)

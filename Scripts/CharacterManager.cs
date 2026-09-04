@@ -28,6 +28,11 @@ public partial class CharacterManager : Control
     {
         Init();
     }
+    public override void _Ready()
+    {
+        ProgramManager.instance.spawnedCharacters.Add(characterInEdit);
+        characterInEdit.AddAudioMonitorion();
+    }
     void Init()
     {
         instance = this;
@@ -110,6 +115,7 @@ public partial class CharacterManager : Control
     public void PutUIDataToCharacterData()
     {
         characterInEdit.data.characterName= CharacterNameLE.Text;
+        characterInEdit.RemoveCharacterFromAudio();
         for (int i = 0; i < characterInEdit.data.animData.Count; i++)
         {
             characterInEdit.data.animData[i].animationCount=(int)availableAnimations[i].frameCountSB.Value;
@@ -132,8 +138,10 @@ public partial class CharacterManager : Control
         {
             mouth.activation = ProgramManager.VALUENOTSET;
         }
+        availableAnimations[(int)EBaseAnims.Mouth].keyActionLE.Text= mouth.activation;
         characterInEdit.data.outfits[outfits.Selected].outfitName= availableAnimations[(int)(EBaseAnims.Outfit)].animNameLE.Text;
         characterInEdit.UpdateUIWithData();
+        characterInEdit.AddAudioMonitorion();
     }
     public void PutCharacterDataIntoUI()
     {
@@ -153,18 +161,20 @@ public partial class CharacterManager : Control
         blinkFrequency.Value=characterInEdit.data.blinkFrequency;
         var mouth = characterInEdit.data.animData[(int)EBaseAnims.Mouth];
         soundChannelPicked = availableAnimations[(int)EBaseAnims.Mouth].keyActionOB.Selected= mouth.activationType;
-        if (soundChannelPicked == 0)
-        {
-            availableAnimations[(int)EBaseAnims.Mouth].keyActionLE.Text= mouth.activation;
-        }
+       
+        availableAnimations[(int)EBaseAnims.Mouth].keyActionLE.Text= mouth.activation;
+        
          availableAnimations[(int)(EBaseAnims.Outfit)].animNameLE.Text= characterInEdit.data.outfits[outfits.Selected].outfitName;
 
         noiseGateHS.Value = characterInEdit.data.talkingMinVolume;
+        characterInEdit.RemoveCharacterFromAudio();
+        characterInEdit.AddAudioMonitorion();
     }
     public void AddCharacterToScene()
     {
         var chara=SpawnManager.SpawnCharacterToScene(IDLoaded);
 
+        GD.Print("Adding character to scene");
         SceneManager.instance.data.charactersSceneData.Add(chara.data);
         chara.LoadCharacterData(IDLoaded);
         chara.UpdateUIWithData();
@@ -203,45 +213,6 @@ public partial class CharacterManager : Control
         SLM.Save(new CharacterData(ID, characterName), characterName, SLM.SAVEDCHARACTERSLOCATION);
         UIManager.instance.AddCharacterToCharacterOptions(characterName);
 
-    }
-    public void SaveCharacter()
-    {
-        isEdited = false;
-        PutUIDataToCharacterData();
-        if (!SLM.RenamePathInList(SLM.charactersToLoad,
-            IDLoaded,
-            characterInEdit.data.characterName,
-            SLM.SAVEDCHARACTERSFILE,
-            SLM.SAVEDCHARACTERSLOCATION))
-        {
-            ConfirmUI.Instance.ShowConfirm("Failed to save character.");
-            return;
-        }
-        UIManager.instance.RenameCharacterInPopupMenu(
-            IDLoaded,
-            characterInEdit.data.characterName);
-
-        SLM.Save(characterInEdit.data,
-            characterInEdit.data.characterName,
-            SLM.SAVEDCHARACTERSLOCATION);
-    }
-    public void LoadCharacter(long id)
-    {
-
-        UIManager.instance.CharacterEditorVisibility(true);
-        IDLoaded = (int)id - 1;
-        characterInEdit.data = SLM.Load<CharacterData>(SLM.charactersToLoad[IDLoaded].filePath);
-        for (int i=0; i< characterInEdit.data.animData.Count; i++)
-        {
-            var anim= characterInEdit.data.animData[i];
-            if (anim.filePath.Equals(ProgramManager.VALUENOTSET)) continue;
-            UpdateAnim(i,anim.filePath);
-        }
-        isEdited = false;
-
-        characterInEdit.LoadCharacterData(CharacterManager.IDLoaded);
-        characterInEdit.UpdateUIWithData();
-        PutCharacterDataIntoUI();
     }
     public void SendOnlineCharacter()
     {

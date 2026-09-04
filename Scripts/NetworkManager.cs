@@ -11,6 +11,7 @@ public partial class NetworkManager : Node
     const int SafeMessageSize = 256 * 1024;
     private const int ChunkSize = 4096; // 4KB per chunk
     public static bool isHost = false;
+    public static bool isMultiplayer=false;
     private Dictionary<int, List<byte[]>> _incomingChunks = new();
     private Dictionary<int, int> _expectedChunks = new();
     public Dictionary<int, Character> joinedPlayers = new();
@@ -33,8 +34,53 @@ public partial class NetworkManager : Node
         Multiplayer.PeerDisconnected += (peer) => { PeerDisconnect((int)peer); };
 
     }
+    #region just for testing
+    private ENetMultiplayerPeer enetPeer;
 
+    public void HostLocalServer()
+    {
+        enetPeer = new ENetMultiplayerPeer();
+        Error err = enetPeer.CreateServer(7000, maxClients: 8);
 
+        if (err != Error.Ok)
+        {
+            GD.PrintErr($"Failed to create ENet server: {err}");
+            return;
+        }
+
+        Multiplayer.MultiplayerPeer = enetPeer;
+        isHost = true;
+        isMultiplayer=true;
+        GD.Print($"ENet server hosting on port {7000}");
+
+        // Server is always "connected" to itself immediately, no need to await anything
+        SpawnPlayerToEveryone(Multiplayer.GetUniqueId());
+    }
+
+    public async void JoinLocalServer(string address = "127.0.0.1")
+    {
+        enetPeer = new ENetMultiplayerPeer();
+        Error err = enetPeer.CreateClient(address, 7000);
+
+        if (err != Error.Ok)
+        {
+            GD.PrintErr($"Failed to create ENet client: {err}");
+            return;
+        }
+
+        Multiplayer.MultiplayerPeer = enetPeer;
+        GD.Print($"Attempting to connect to {address}:{7000}");
+
+        if (enetPeer.GetConnectionStatus() != MultiplayerPeer.ConnectionStatus.Connected)
+        {
+            await ToSignal(Multiplayer, MultiplayerApi.SignalName.ConnectedToServer);
+        }
+
+        GD.Print("Connected to ENet server");
+        isMultiplayer=true;
+        SpawnPlayerToEveryone(Multiplayer.GetUniqueId());
+    }
+    #endregion
     public void HostLobby()
     {
         steamFunction.Call("host_lobby");
@@ -43,6 +89,7 @@ public partial class NetworkManager : Node
     {
         UIManager.instance.ToggleNetworkConnectionButtons(true);
         GD.Print($"joined with peer: {peer} to {Multiplayer.GetUniqueId()}");
+        isMultiplayer = true;
 
         SpawnPlayerToEveryone(peer);
         SyncConnectedPlayersToNewPlayer(peer);
@@ -62,6 +109,7 @@ public partial class NetworkManager : Node
     {
         UIManager.instance.ToggleNetworkMenuButtons(false);
         isHost = true;
+        isMultiplayer = true;
         GD.Print("host connected");
         //SpawnPlayerToEveryone(Multiplayer.MultiplayerPeer.GetUniqueId());
     }
@@ -103,7 +151,7 @@ public partial class NetworkManager : Node
         }
         joinedPlayers.Clear();
         Multiplayer.MultiplayerPeer.DisconnectPeer(Multiplayer.GetUniqueId());
-
+        isMultiplayer = false;
     }
     public void Kick(int peer)
     {
@@ -123,20 +171,21 @@ public partial class NetworkManager : Node
             if (cPlayer.Key == newPlayerId) continue;
             //GD.Print(data.character.SendAnimationFrames());
             //GD.Print(animFramesToSend);
-            RpcId(newPlayerId, MethodName.SendDataToPeer,
+            SendDataToPeer(SaveLoadManager.CharacterDataToBytes(joinedPlayers[cPlayer.Key].data), (int)newPlayerId, cPlayer.Key);
+            /*RpcId(newPlayerId, MethodName.RecieveDataFromPeer,
                 SaveLoadManager.CharacterDataToBytes(joinedPlayers[cPlayer.Key].data),
                 cPlayer.Key);
+            */
             GD.Print("ImageData being sent:");
             var byteSequence = SaveLoadManager.AnimsToByte(cPlayer.Value);
             GD.Print($"Sent byteSequence length: {byteSequence.Length}, hash: {Convert.ToBase64String(System.Security.Cryptography.MD5.HashData(byteSequence))}");
             SendImageDataInPieces(byteSequence, (int)newPlayerId, cPlayer.Key);
         }
-        GD.Print("player synced");
-
+        GD.Print("player synced"); 
     }
     public void SendDataToPeer(byte[] data, int targetPeerID, long peerDataID)
     { 
-        RpcId(targetPeerID, MethodName.SendDataToPeer,
+        RpcId(targetPeerID, MethodName.RecieveDataFromPeer,
             data,
             peerDataID);
     }
@@ -146,7 +195,17 @@ public partial class NetworkManager : Node
         var charData = SaveLoadManager.BytesToCharacterData(data);
         joinedPlayers[(int)peerDataID].data = charData;
     }
-     
+
+    public void SendTalkData(bool data, int peerDataID)
+    {
+        if (!isMultiplayer) return;
+        Rpc(MethodName.RecieveTalk, data, peerDataID);
+    }
+    [Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    public void RecieveTalk(bool data, int peerDataID)
+    {
+        joinedPlayers[(int)peerDataID].isTalking= data;
+    }
 
     public void SendImageDataInPieces(byte[] byteSequence, long targetPeerId, long peerDataID)
     {
@@ -176,7 +235,7 @@ else
             RpcId(targetPeerId, MethodName.ReceiveChunk, peerDataID, transferId, i, totalChunks, chunk);
         }
         */
-        RpcId(targetPeerId, MethodName.OnAnimationsFullyRecieved, peerDataID, byteSequence);
+        RpcId(targetPeerId, MethodName.OnAnimationsFullyRecieved, (int)peerDataID, byteSequence);
 
     }
     [Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = false, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]

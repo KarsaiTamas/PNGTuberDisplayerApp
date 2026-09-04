@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using CM = CharacterManager;
+using SM = SceneManager;
 
 //using System.IO;
 using System.Text.Json;
@@ -49,14 +51,50 @@ public static class SaveLoadManager
     #endregion
 
     #region Scene Loading
+
+    public static void SaveScene()
+    {
+        SM.instance.isEdited = false;
+        SM.instance.PutUIDataToSceneData();
+
+        if (!RenamePathInList(scenesToLoad,
+            SM.IDLoadedScene,
+        SM.instance.data.sceneName,
+            SAVEDSCENESFILE,
+            SAVEDSCENESLOCATION))
+        {
+            ConfirmUI.Instance.ShowConfirm("Failed to save Scene.");
+            return;
+        }
+
+        UIManager.instance.RenameSceneInPopupMenu(
+            SM.IDLoadedScene,
+        SM.instance.data.sceneName);
+
+        Save(SM.instance.data, SM.instance.data.sceneName, SAVEDSCENESLOCATION);
+
+    }
     public static void LoadScene(int id)
     {
-        SceneManager.instance.RemoveCharacters();
+        GD.Print("loading to scene");
+        if(SM.instance.isEdited)
+        {
+            ConfirmUI.Instance.ShowConfirm("You have unsaved changes in your scene! " +
+                "Would you like to save before closing this scene?",
+                ()=> { SaveScene(); LoadSceneScript(id); },
+                ()=> LoadSceneScript(id));
+        }
+        else LoadSceneScript(id);
+    }
+    private static void LoadSceneScript(int id)
+    {
+        SM.instance.RemoveCharacters();
         UIManager.instance.OpenScene(id);
-        SceneManager.IDLoadedScene = id - 1;
-        SceneManager.instance.data = Load<SceneData>(scenesToLoad[id - 1]);
-        UIManager.instance.LoadDataIntoSceneUI(); 
-         
+        SM.IDLoadedScene = id - 1;
+        SM.instance.data = Load<SceneData>(scenesToLoad[id - 1]);
+        UIManager.instance.LoadDataIntoSceneUI();
+        SM.instance.isEdited = false;
+
     }
     public static void OpenFileDialogueForScene()
     {
@@ -69,7 +107,7 @@ public static class SaveLoadManager
 
     #region Character Loading
 
-    public static CharacterData LoadCharacter(int id)
+    public static CharacterData LoadCharacterData(int id)
     {
         return Load<CharacterData>(charactersToLoad[id].filePath);
 
@@ -86,6 +124,47 @@ public static class SaveLoadManager
         var data = System.Text.Json.JsonSerializer
             .Deserialize<CharacterData>(json);
         return data;
+    }
+
+    public static void SaveCharacter()
+    {
+        CM.instance.isEdited = false;
+        CM.instance.PutUIDataToCharacterData();
+        if (!RenamePathInList(charactersToLoad,
+            CM.IDLoaded,
+            CM.instance.characterInEdit.data.characterName,
+            SAVEDCHARACTERSFILE,
+            SAVEDCHARACTERSLOCATION))
+        {
+            ConfirmUI.Instance.ShowConfirm("Failed to save character.");
+            return;
+        }
+        UIManager.instance.RenameCharacterInPopupMenu(
+            CM.IDLoaded,
+            CM.instance.characterInEdit.data.characterName);
+
+        Save(CM.instance.characterInEdit.data,
+            CM.instance.characterInEdit.data.characterName,
+            SAVEDCHARACTERSLOCATION);
+        ProgramManager.instance.ReloadCharactersByID(CM.instance.characterInEdit.data.ID);
+    }
+    public static void LoadCharacterInEditor(long id)
+    {
+
+        UIManager.instance.CharacterEditorVisibility(true);
+        CM.IDLoaded = (int)id - 1;
+        CM.instance.characterInEdit.data = Load<CharacterData>(charactersToLoad[CM.IDLoaded].filePath);
+        for (int i = 0; i < CM.instance.characterInEdit.data.animData.Count; i++)
+        {
+            var anim = CM.instance.characterInEdit.data.animData[i];
+            if (anim.filePath.Equals(ProgramManager.VALUENOTSET)) continue;
+            CM.instance.UpdateAnim(i, anim.filePath);
+        }
+        CM.instance.isEdited = false;
+
+        CM.instance.characterInEdit.LoadCharacterData(CM.IDLoaded);
+        CM.instance.characterInEdit.UpdateUIWithData();
+        CM.instance.PutCharacterDataIntoUI();
     }
     #endregion
 
@@ -391,7 +470,7 @@ public static class SaveLoadManager
 
     public static string DateTimeForSave()
     {
-        return DateTime.Now.ToString().Replace(':','_').Replace(" ","");
+        return DateTime.Now.ToString().Replace(':','_').Replace(" ","").Replace('/','_');
     }
 
     public static int GetCharacterIntID(string ID)

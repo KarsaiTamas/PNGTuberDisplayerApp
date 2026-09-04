@@ -35,6 +35,7 @@ public partial class SceneManager : Node
         foreach (var item in charactersOnScene)
         {
             ProgramManager.instance.spawnedCharacters.Remove(item);
+            item.RemoveCharacterFromAudio();
             item.QueueFree();
         }
         charactersOnScene.Clear();
@@ -66,48 +67,6 @@ public partial class SceneManager : Node
 
     }
 
-    public void SaveScene()
-    {
-        isEdited = false;
-        PutUIDataToSceneData();
 
-        if (!SLM.RenamePathInList(SLM.scenesToLoad,
-            IDLoadedScene,
-            data.sceneName,
-            SLM.SAVEDSCENESFILE,
-            SLM.SAVEDSCENESLOCATION))
-        {
-            ConfirmUI.Instance.ShowConfirm("Failed to save Scene.");
-            return;
-        }
 
-        UIManager.instance.RenameSceneInPopupMenu(
-            IDLoadedScene,
-            data.sceneName);
-
-        SLM.Save(data, data.sceneName, SLM.SAVEDSCENESLOCATION);
-
-    }
-
-    public void LoadScene(int id)
-    {
-        if (!isEdited)
-        {
-            SLM. LoadScene(id);
-        }
-        else
-        {
-            ConfirmUI.Instance.ShowConfirm("You have unsaved changes, would you like to save before loading new scene?",
-                () => {
-                    SaveScene();
-                    SLM.LoadScene(id);
-                },
-                () =>
-                {
-                    SLM.LoadScene(id);
-                    isEdited = false;
-
-                });
-        }
-    }
 }

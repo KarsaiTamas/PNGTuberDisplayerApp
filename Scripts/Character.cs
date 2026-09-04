@@ -23,9 +23,10 @@ public partial class Character : Control
     int baseTextureCurFrame=0;
     int eyeTextureCurFrame=0;
     int mouthTextureCurFrame=0;
-    bool isEditor=true;
+    public bool isEditor=true;
     bool isOnline=false;
-    public bool isLocal = true;
+    bool alreadyTalked = false;
+    public bool isLocal = true; 
     #region UI Elements
 
     public AudioDetector audioDetector;
@@ -72,8 +73,6 @@ public partial class Character : Control
         isEditor=false;
         this.data = data;
         LoadCharacterData(SLM.GetCharacterIntID(data.ID));
-        AddAudioMonitorion();
-        AudioManager.instance.AddCharacter(data.animData[(int)EBaseAnims.Mouth].activation, this);
         UpdateUIWithData();
     }
     public void SpawnOnline()
@@ -99,8 +98,10 @@ public partial class Character : Control
 
     public void LoadCharacterData(int ID)
     {
-        var lData =SLM.LoadCharacter(ID);
+        var lData =SLM.LoadCharacterData(ID);
+        RemoveCharacterFromAudio();
         lData.GiveCharacterData(data);
+        AddAudioMonitorion();
     }
     public void LoadSceneData(CharacterData data)
     {
@@ -118,13 +119,18 @@ public partial class Character : Control
         SceneManager.instance.isEdited = true;
         ProgramManager.instance.spawnedCharacters.Remove(this);
         SceneManager.instance.charactersOnScene.Remove(this);
-        QueueFree();
+        RemoveCharacterFromAudio();
+        QueueFree(); 
     }
     public void RemoveOnlineCharacter()
     {
         ProgramManager.instance.spawnedCharacters.Remove(this);
         QueueFree();
 
+    }
+    public void RemoveCharacterFromAudio()
+    { 
+        AudioManager.instance.RemoveCharacter(data.animData[(int)EBaseAnims.Mouth].activation, this);
     }
     #endregion
     #region Movement_Editing
@@ -164,7 +170,7 @@ public partial class Character : Control
         isChanged = data.size!= characterInteractButton.CustomMinimumSize;
 
         data.size = characterInteractButton.CustomMinimumSize;
-        return isChanged;
+        return !isOnline;
     }
 
     public bool MoveCharacterTowardsMouse(Vector2 move)
@@ -177,21 +183,21 @@ public partial class Character : Control
 
         isChanged = data.position!=GlobalPosition;
         data.position = GlobalPosition;
-        return isChanged;
+        return !isOnline;
     }
     public bool ChangeCharacterLayer(int amount)
     {
         data.layer = Math.Clamp(data.layer + amount, -100,100);
         this.ZIndex = data.layer;
         isChanged = true;
-        return true;
+        return !isOnline;
     }
     public bool MirrorCharacter()
     {
         data.mirrored = !data.mirrored;
         Flip(data.mirrored);
         isChanged = true;
-        return true;
+        return !isOnline;
     }
 
     public void Flip(bool isFlipped)
@@ -228,7 +234,11 @@ public partial class Character : Control
         if (!isTalking) { StopTalking(delta); return; }
         var mouth = data.animData[(int)EBaseAnims.Mouth];
         PlayAnimation(mouthTexture, (int)EBaseAnims.Mouth,ref mouthTextureCurFrame, mouth.animationCount,ref mouthAnimFrameDelay, mouth.animSpeed, delta);
-
+        if (!alreadyTalked)
+        {
+            OnlineTalk(true);
+            alreadyTalked = true;
+        }
     }
     public void StopTalking(float delta)
     {
@@ -237,11 +247,19 @@ public partial class Character : Control
             mouthAnimFrameDelay -= delta;
             return;
         }
+        if (!alreadyTalked) return;
         isTalking = false;
+        OnlineTalk(false);
+        alreadyTalked=false;
         mouthTextureCurFrame = 0;
         mouthAnimFrameDelay= 0;
         PlayAnimation(mouthTexture, (int)EBaseAnims.Mouth, ref mouthTextureCurFrame, 0, ref mouthAnimFrameDelay, 0, 0);
     }
+    public void OnlineTalk(bool isTalking)
+    {
+        NetworkManager.instance.SendTalkData(isTalking, Multiplayer.GetUniqueId());
+    }
+
     #endregion
     #region Helper functions
     public bool InSelectionZone(Vector2 pos)

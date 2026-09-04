@@ -71,12 +71,7 @@ public partial class AudioManager : Node
          
 
     }
-
-    [Rpc(mode: MultiplayerApi.RpcMode.AnyPeer, CallLocal = false, TransferMode = MultiplayerPeer.TransferModeEnum.Unreliable)]
-    public void SetIsTalking(bool isTalking)
-    {
-        IsTalking = isTalking;
-    } 
+     
     public override void _ExitTree()
     {
         if (micInput != null && micInput.Playing)
@@ -92,6 +87,7 @@ public partial class AudioManager : Node
     public void AddCharacter(string device,Character character)
     {
         if (!audioDetectors.ContainsKey(device)) return;
+        if (audioDetectors[device].characterList.Contains(character)) return;
         audioDetectors[device].characterList.Add(character);
     }
     public void RemoveCharacter(string device, Character character)

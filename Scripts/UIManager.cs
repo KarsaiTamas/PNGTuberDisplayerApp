@@ -2,6 +2,7 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using SLM = SaveLoadManager;
 
 public partial class UIManager : Node
 {
@@ -143,10 +144,10 @@ public partial class UIManager : Node
             case ESceneMenus.CreateScene:
             default:
                 SceneManager.instance.CreateScene();
-                SceneManager.instance.LoadScene(SaveLoadManager.scenesToLoad.Count);
+                SLM.LoadScene(SLM.scenesToLoad.Count);
                 break;
             case ESceneMenus.SaveScene:
-                SceneManager.instance.SaveScene();
+                SLM.SaveScene();
                 break;
             case ESceneMenus.DeleteScene:
                 ConfirmUI.Instance.ShowConfirm("Do you want to delete this open scene?", SceneManager.instance.DeleteScene );
@@ -165,7 +166,7 @@ public partial class UIManager : Node
                 CharacterOptionsPressed(SaveLoadManager.charactersToLoad.Count);
                 break;
             case ECharacterMenus.SaveCharacter:
-                characterEditor.SaveCharacter();
+                SLM.SaveCharacter();
                 break;
             case ECharacterMenus.DeleteCharacter:
                 ConfirmUI.Instance.ShowConfirm("Do you want to delete this open character?", characterEditor.DeleteCharacter);
@@ -218,10 +219,10 @@ public partial class UIManager : Node
     {
         if((int)id == 0)
         {
-            SaveLoadManager.OpenFileDialogueForScene();
+            SLM.OpenFileDialogueForScene();
             return;
         }
-        SaveLoadManager.LoadScene((int)id);
+        SLM.LoadScene((int)id);
     }
 
     private void CharacterOptionsPressed(long id)
@@ -233,7 +234,7 @@ public partial class UIManager : Node
         }
         GD.Print("we pressed character with ID: "+id);
         GD.Print(SaveLoadManager.charactersToLoad[(int)id - 1].filePath);
-        characterEditor.LoadCharacter(id);
+        SLM.LoadCharacterInEditor(id);
     }
 
     public void OpenFileDialogueForCharacter()
@@ -303,11 +304,7 @@ public partial class UIManager : Node
     public void ToggleControlsUI()
     {
         controlsUI.Visible = !controlsUI.Visible;
-    }
-    public void ResetCharacterEditor()
-    {
-        GD.PrintErr("Reset Character Editor is not set in UIManager 237");
-    }
+    } 
 
     public void AddSceneToSceneOptions(string sceneName)
     {
@@ -358,15 +355,10 @@ public partial class UIManager : Node
         { 
             ConfirmUI.Instance.ShowConfirm("You have unsaved changes, would you like to save before closing?", 
                 ()=> {
-                    SceneManager.instance.SaveScene(); 
+                    SLM.SaveScene(); 
                     ClosingSceneItems();
-                }, 
-                () =>
-                {
-                    ClosingSceneItems();
-                    SceneManager.instance.isEdited = false;
-
-                });
+                },
+                ClosingSceneItems);
         }
     }
     public void ClosingSceneItems()
@@ -374,6 +366,7 @@ public partial class UIManager : Node
         SceneManager.instance.RemoveCharacters();
         ToggleSceneUI(false);
         SceneManager.IDLoadedScene = -1;
+        SceneManager.instance.isEdited = false;
     }
     void ToggleSceneUI(bool visible)
     {
@@ -412,24 +405,21 @@ public partial class UIManager : Node
     {
         if (!characterEditor.isEdited)
         {
-            CharacterEditorVisibility(false);
-            ResetCharacterEditor();
+            CharacterEditorVisibility(false); 
         }
         else
         {
             ConfirmUI.Instance.ShowConfirm("You didn't saved yet, would you like to save the character before closing?",
                 ()=> 
-                { 
-                    characterEditor.SaveCharacter(); 
-                    ResetCharacterEditor();
+                {
+                    SLM.SaveCharacter();  
                     CharacterEditorVisibility(false);
                     CharacterManager.instance.isEdited = false;
 
                 },
                 () =>
                 {
-                    CharacterEditorVisibility(false);
-                    ResetCharacterEditor();
+                    CharacterEditorVisibility(false); 
                     CharacterManager.instance.isEdited = false;
                 });
         }
@@ -516,9 +506,9 @@ public partial class UIManager : Node
         () => 
         {
             if (SceneManager.instance.isEdited)
-                SceneManager.instance.SaveScene();
+                SLM.SaveScene();
             if (CharacterManager.instance.isEdited)
-                characterEditor.SaveCharacter();
+                SLM.SaveCharacter();
             GetTree().Quit();
         },
         () => { GetTree().Quit(); }
