@@ -43,8 +43,7 @@
 <br>You can set Input and output audio to be used for your created character.</br>
 <br>You should be able to setup any audio for a character to talk with.</br>
 <br>Multiplayer is using steam, so you can setup a lobby via hitting host in Network, than you just copy the invite code which is also in Network.</br>
-<br>Right now you can join to someone, but I haven't tested successfully sending images between players for the PNGs to work so that's iffy.</br>
-<br>The mouth sync haven't been setup yet, since I want to verify if joining works properly now.</br>
+<br>Right now you can join to someone, sending the characters to each other works, but I have to make the sync new 'player' to lobby work.</br>
 
 <br>Plans:</br> 
 <br>Adding in extra animation support which with you can make it interact with let's say twitch chat.</br>
@@ -53,9 +52,7 @@
 
 
 <br>note: </br>
-<br>I did tested claud in this project. So it made usable code. </br>
-<br>The free version is great for bug hunting, so no more spend 5 hours to find a dumb bug.</br>
-<br>So It mostly made the audio detection stuff, which I already modified by hand a bit</br>
-<br>Networking is mixed right now, some things made by it, some things made by me.</br>
+<br>I mostly replaced google search with claud, since google is horrible for searching these days. Google is throwing me AI anyway when searching for something</br>
+<br>It found the addon I needed for the audio detection, the base script are made by it, but I changed them since. Tho I want to try to change it even more later if I can.</br>
+<br>I used it to find some bugs in my code.</br>
 <br>I'll see how much it's gonna be used in the end, tho I will check every piece of code it made before implementing it, cus I just don't trust it.</br>
-<br>I mainly gonna use claud to replace google search with it. Google is throwing me AI anyway when seraching for something.</br>
