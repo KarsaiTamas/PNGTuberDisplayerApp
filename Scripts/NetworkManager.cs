@@ -132,7 +132,7 @@ public partial class NetworkManager : Node
     }
     public void OnHostDisconnected()
     {
-        DisconnectHost();
+        DisconnectFromLobby();
     }
     public void JoinToLobby()
     {
@@ -155,6 +155,7 @@ public partial class NetworkManager : Node
     public void PeerDisconnect(int peer)
     {
         Rpc(MethodName.Disconnecting, peer);
+        
     }
     [Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
     public void Disconnecting(int peer)
@@ -176,8 +177,9 @@ public partial class NetworkManager : Node
         joinedPlayers.Clear();
         Multiplayer.MultiplayerPeer.DisconnectPeer(Multiplayer.GetUniqueId());
         isMultiplayer = false;
+        ConfirmUI.Instance.ShowConfirm("Host had been disconnected, or lost connection.");
 
-    } 
+    }
 
     public void DisconnectFromLobby()
     {
@@ -189,6 +191,8 @@ public partial class NetworkManager : Node
         joinedPlayers.Clear();
         Multiplayer.MultiplayerPeer.DisconnectPeer(Multiplayer.GetUniqueId());
         isMultiplayer = false;
+        ConfirmUI.Instance.ShowConfirm("Disconnected from lobby.");
+
 
     }
 
