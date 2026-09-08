@@ -50,8 +50,10 @@ public partial class ConfirmUI : Control
     public void ShowConfirm(string labelText, Action yesPressed)
     {
         if (isActive) return;
+        GD.Print("Should show yes");
         noButton.Hide();
         confirmLE.Hide();
+        yesButton.Show();
         cancelButton.Text = "Cancel";
         yesAction = yesPressed; 
         yesButton.Pressed += yesAction;
@@ -62,6 +64,7 @@ public partial class ConfirmUI : Control
     {
         if (isActive) return;
         noButton.Show();
+        yesButton.Show();
         confirmLE.Hide();
         cancelButton.Text = "Cancel";
         yesAction = yesPressed;

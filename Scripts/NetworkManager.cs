@@ -168,6 +168,7 @@ public partial class NetworkManager : Node
     {
 
         UIManager.instance.ToggleNetworkMenuButtons(true);
+        UIManager.instance.ToggleNetworkConnectionButtons(false);
         isHost = false;
         foreach (var item in joinedPlayers)
         {
@@ -183,6 +184,7 @@ public partial class NetworkManager : Node
 
     public void DisconnectFromLobby()
     {
+        UIManager.instance.ToggleNetworkConnectionButtons(false);
         UIManager.instance.ToggleNetworkMenuButtons(true);
         foreach (var item in joinedPlayers)
         {
