@@ -11,6 +11,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 public partial class Character : Control
 {
     public CharacterData data;
+    public int peerID;
     public bool uiVisible;
     public bool isChanged;
     public bool isTalking;
@@ -26,7 +27,8 @@ public partial class Character : Control
     public bool isEditor=true;
     bool isOnline=false;
     bool alreadyTalked = false;
-    public bool isLocal = true; 
+    public bool isLocal = true;
+    public bool loadedCharacter=false;
     #region UI Elements
 
     public AudioDetector audioDetector;
@@ -80,7 +82,7 @@ public partial class Character : Control
         isEditor = false;
         isOnline = true;
         isLocal = IsMultiplayerAuthority();
-            
+        deleteCharacterFromScene.Visible = isLocal || NetworkManager.isHost;
         
         GD.Print(IsMultiplayerAuthority());
     }
@@ -116,15 +118,41 @@ public partial class Character : Control
 
     public void RemoveCharacterFromScene()
     {
-        SceneManager.instance.isEdited = true;
-        ProgramManager.instance.spawnedCharacters.Remove(this);
-        SceneManager.instance.charactersOnScene.Remove(this);
-        RemoveCharacterFromAudio();
-        QueueFree(); 
+        if (NetworkManager.isHost)
+        {
+            if (isLocal)
+            {
+                ConfirmUI.Instance.ShowConfirm("Would you like to stop hosting?",
+                NetworkManager.instance.DisconnectHost);
+
+            }
+            else
+            {
+                ConfirmUI.Instance.ShowConfirm("Would you like to kick this player?",
+                ()=> { NetworkManager.instance.PeerDisconnect(peerID); });
+
+            }
+            return;
+        }
+        if (isOnline)
+        {
+            ConfirmUI.Instance.ShowConfirm("Would you like to leave this lobby?",
+                NetworkManager.instance.DisconnectFromLobby);
+            return;
+        }
+        ConfirmUI.Instance.ShowConfirm("Would you like to remove this character from the scene?", () =>
+        {
+
+            SceneManager.instance.isEdited = true;
+            PM.instance.spawnedCharacters.Remove(this);
+            SceneManager.instance.charactersOnScene.Remove(this);
+            RemoveCharacterFromAudio();
+            QueueFree();
+        });
     }
     public void RemoveOnlineCharacter()
     {
-        ProgramManager.instance.spawnedCharacters.Remove(this);
+        PM.instance.spawnedCharacters.Remove(this);
         QueueFree();
 
     }

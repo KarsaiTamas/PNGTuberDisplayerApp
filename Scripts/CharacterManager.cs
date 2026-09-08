@@ -233,6 +233,7 @@ public partial class CharacterManager : Control
                 Multiplayer.MultiplayerPeer.GetUniqueId());
  
         }
+        character.loadedCharacter = true;
     }
     public void DeleteCharacter()
     {

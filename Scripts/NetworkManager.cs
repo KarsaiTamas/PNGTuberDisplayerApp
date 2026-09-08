@@ -31,6 +31,7 @@ public partial class NetworkManager : Node
             GD.Print(Multiplayer.MultiplayerPeer.GetUniqueId()); 
             Rpc(MethodName.SpawnPlayerToEveryone,Multiplayer.MultiplayerPeer.GetUniqueId()); };*/
         Multiplayer.PeerConnected += (peer) => { SpawnPlayerToEveryone((int)peer); };
+        Multiplayer.ServerDisconnected += OnHostDisconnected;
         Multiplayer.PeerDisconnected += (peer) => { PeerDisconnect((int)peer); };
 
     }
@@ -92,18 +93,34 @@ public partial class NetworkManager : Node
         isMultiplayer = true;
 
         SpawnPlayerToEveryone(peer);
-        SyncConnectedPlayersToNewPlayer(peer);
+        //SyncConnectedPlayersToNewPlayer(peer);
+        if (joinedPlayers[Multiplayer.GetUniqueId()].loadedCharacter)
+        {
+
+            SendDataToPeer(SaveLoadManager.CharacterDataToBytes(joinedPlayers[peer].data), Multiplayer.GetUniqueId(), peer);
+
+            GD.Print("ImageData being sent:");
+            var byteSequence = SaveLoadManager.AnimsToByte(joinedPlayers[peer]);
+            GD.Print($"Sent byteSequence length: {byteSequence.Length}, hash: {Convert.ToBase64String(System.Security.Cryptography.MD5.HashData(byteSequence))}");
+            SendImageDataInPieces(byteSequence, Multiplayer.GetUniqueId(), peer);
+        }
         //Rpc(MethodName.SpawnPlayerToEveryone,peer);
     }
     [Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
     public void SpawnPlayerToEveryone(int peer)
     {
+        SpawnPlayer(peer);
+    }
+    public void SpawnPlayer(int peer)
+    {
         GD.Print($"Peerid: {peer} spawn player");
         var character = SpawnManager.SpawnCharacter();
         character.Name = $"Really_Cool_Player_With_Peer_{peer}";
         character.SetMultiplayerAuthority(peer);
+        character.peerID = peer;
         character.SpawnOnline();
         joinedPlayers.Add(peer, character);
+
     }
     public void OnHostConnected()
     {
@@ -115,7 +132,7 @@ public partial class NetworkManager : Node
     }
     public void OnHostDisconnected()
     {
-        Disconnect();
+        DisconnectHost();
     }
     public void JoinToLobby()
     {
@@ -137,14 +154,34 @@ public partial class NetworkManager : Node
     }
     public void PeerDisconnect(int peer)
     {
+        Rpc(MethodName.Disconnecting, peer);
+    }
+    [Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    public void Disconnecting(int peer)
+    {
         joinedPlayers[peer].RemoveOnlineCharacter();
         Multiplayer.MultiplayerPeer.DisconnectPeer(peer);
+
     }
-    public void Disconnect()
+    public void DisconnectHost()
     {
 
         UIManager.instance.ToggleNetworkMenuButtons(true);
         isHost = false;
+        foreach (var item in joinedPlayers)
+        {
+            PeerDisconnect(item.Key);
+            item.Value.RemoveOnlineCharacter();
+        }
+        joinedPlayers.Clear();
+        Multiplayer.MultiplayerPeer.DisconnectPeer(Multiplayer.GetUniqueId());
+        isMultiplayer = false;
+
+    } 
+
+    public void DisconnectFromLobby()
+    {
+        UIManager.instance.ToggleNetworkMenuButtons(true);
         foreach (var item in joinedPlayers)
         {
             item.Value.RemoveOnlineCharacter();
@@ -152,13 +189,8 @@ public partial class NetworkManager : Node
         joinedPlayers.Clear();
         Multiplayer.MultiplayerPeer.DisconnectPeer(Multiplayer.GetUniqueId());
         isMultiplayer = false;
-    }
-    public void Kick(int peer)
-    {
-        PeerDisconnect(peer);
 
     }
-
 
 
     public void SyncConnectedPlayersToNewPlayer(long newPlayerId)
@@ -167,15 +199,11 @@ public partial class NetworkManager : Node
         {
             GD.Print("data");
             GD.Print(cPlayer.Key);
-            // Don't send a player their own data (they already have it)
             if (cPlayer.Key == newPlayerId) continue;
             //GD.Print(data.character.SendAnimationFrames());
             //GD.Print(animFramesToSend);
             SendDataToPeer(SaveLoadManager.CharacterDataToBytes(joinedPlayers[cPlayer.Key].data), (int)newPlayerId, cPlayer.Key);
-            /*RpcId(newPlayerId, MethodName.RecieveDataFromPeer,
-                SaveLoadManager.CharacterDataToBytes(joinedPlayers[cPlayer.Key].data),
-                cPlayer.Key);
-            */
+             
             GD.Print("ImageData being sent:");
             var byteSequence = SaveLoadManager.AnimsToByte(cPlayer.Value);
             GD.Print($"Sent byteSequence length: {byteSequence.Length}, hash: {Convert.ToBase64String(System.Security.Cryptography.MD5.HashData(byteSequence))}");
