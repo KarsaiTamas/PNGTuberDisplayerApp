@@ -4,7 +4,7 @@ signal host_created()
 signal lobby_joined(peer:int)
 signal on_host_disconnected()
 signal on_peer_connected()
-const LOBBY_TYPE := Steam.LobbyType.LOBBY_TYPE_FRIENDS_ONLY
+const LOBBY_TYPE := Steam.LobbyType.LOBBY_TYPE_INVISIBLE
 const MAX_MEMBERS :=20
 var lobbyID=-1
 var peer: SteamMultiplayerPeer
@@ -16,8 +16,6 @@ func _ready() -> void:
 	Steam.lobby_created.connect(on_lobby_created)
 	Steam.lobby_joined.connect(on_lobby_joined)
 	Steam.join_requested.connect(on_join_requested)
-	multiplayer.connected_to_server.connect(func(): print(">>> CONNECTED TO SERVER"))
-	multiplayer.connection_failed.connect(func(): print(">>> CONNECTION FAILED"))
 	#Steam.steam_server_disconnected.connect()
 	#Steam.remote_play_session_disconnected.connect() 
 	

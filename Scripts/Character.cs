@@ -82,7 +82,7 @@ public partial class Character : Control
         isEditor = false;
         isOnline = true;
         isLocal = IsMultiplayerAuthority();
-        deleteCharacterFromScene.Visible = isLocal || NetworkManager.isHost;
+        //deleteCharacterFromScene.Visible = isLocal || NetworkManager.isHost;
         
         GD.Print(IsMultiplayerAuthority());
     }
@@ -129,7 +129,7 @@ public partial class Character : Control
             else
             {
                 ConfirmUI.Instance.ShowConfirm("Would you like to kick this player?",
-                ()=> { NetworkManager.instance.PeerDisconnect(peerID); });
+                () => NetworkManager.instance.KickPlayer(peerID));
 
             }
             return;
@@ -137,7 +137,8 @@ public partial class Character : Control
         if (isOnline)
         {
             ConfirmUI.Instance.ShowConfirm("Would you like to leave this lobby?",
-                NetworkManager.instance.DisconnectFromLobby);
+        
+                ()=> { NetworkManager.instance.DisconnectFromLobby(); ConfirmUI.Instance.ShowConfirm("Left lobby."); });
             return;
         }
         ConfirmUI.Instance.ShowConfirm("Would you like to remove this character from the scene?", () =>

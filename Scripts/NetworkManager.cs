@@ -15,6 +15,7 @@ public partial class NetworkManager : Node
     private Dictionary<int, List<byte[]>> _incomingChunks = new();
     private Dictionary<int, int> _expectedChunks = new();
     public Dictionary<int, Character> joinedPlayers = new();
+    public bool isJoined = false;
     public override void _EnterTree()
     {
         instance = this;
@@ -32,7 +33,7 @@ public partial class NetworkManager : Node
             Rpc(MethodName.SpawnPlayerToEveryone,Multiplayer.MultiplayerPeer.GetUniqueId()); };*/
         Multiplayer.PeerConnected += (peer) => { SpawnPlayerToEveryone((int)peer); };
         Multiplayer.ServerDisconnected += OnHostDisconnected;
-        Multiplayer.PeerDisconnected += (peer) => { PeerDisconnect((int)peer); };
+        Multiplayer.PeerDisconnected += (peer) => { OnPeerDisconnected((int)peer); };
 
     }
     #region just for testing
@@ -157,31 +158,67 @@ public partial class NetworkManager : Node
         Rpc(MethodName.Disconnecting, peer);
         
     }
+    public void SendNotificationToAll(string message)
+    {
+        Rpc(MethodName.RecieveNotification, message);
+    }
+    public void SendNotification(int peer,string message)
+    {
+        RpcId(peer, MethodName.RecieveNotification, message);
+    }
+    [Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = false, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    public void RecieveNotification(string message)
+    {
+        ConfirmUI.Instance.ShowConfirm(message);
+
+    }
     [Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
     public void Disconnecting(int peer)
     {
-        joinedPlayers[peer].RemoveOnlineCharacter();
-        Multiplayer.MultiplayerPeer.DisconnectPeer(peer);
+        if (Multiplayer.IsServer() && peer != Multiplayer.GetUniqueId())
+        {
+            Multiplayer.MultiplayerPeer.DisconnectPeer(peer);
+        }
+        //Multiplayer.MultiplayerPeer.DisconnectPeer(peer);
 
     }
-    public void DisconnectHost()
+    public void OnPeerDisconnected(int peer)
     {
 
+        if (joinedPlayers.ContainsKey(peer))
+        {
+            joinedPlayers[peer].RemoveOnlineCharacter();
+            joinedPlayers.Remove(peer);
+        }
+    }
+    public async void DisconnectHost()
+    {
+
+        SendNotificationToAll("Server is closed. Disconnected.");
+        await ToSignal(GetTree().CreateTimer(0.4f),Timer.SignalName.Timeout);
         UIManager.instance.ToggleNetworkMenuButtons(true);
         UIManager.instance.ToggleNetworkConnectionButtons(false);
         isHost = false;
         foreach (var item in joinedPlayers)
         {
-            PeerDisconnect(item.Key);
+            if (item.Key != Multiplayer.GetUniqueId()) 
+            { 
+                PeerDisconnect(item.Key); 
+            }
             item.Value.RemoveOnlineCharacter();
         }
+        Multiplayer.MultiplayerPeer.Close();
+        Multiplayer.MultiplayerPeer=null;
         joinedPlayers.Clear();
-        Multiplayer.MultiplayerPeer.DisconnectPeer(Multiplayer.GetUniqueId());
         isMultiplayer = false;
-        ConfirmUI.Instance.ShowConfirm("Host had been disconnected, or lost connection.");
-
+        ConfirmUI.Instance.ShowConfirm("Stopped hosting.");
     }
-
+    public async void KickPlayer(int peer)
+    {
+        SendNotification(peer, "You had been kicked from the lobby!");
+        await ToSignal(GetTree().CreateTimer(0.4f),Timer.SignalName.Timeout);
+        Multiplayer.MultiplayerPeer.DisconnectPeer(peer);
+    }
     public void DisconnectFromLobby()
     {
         UIManager.instance.ToggleNetworkConnectionButtons(false);
@@ -191,9 +228,9 @@ public partial class NetworkManager : Node
             item.Value.RemoveOnlineCharacter();
         }
         joinedPlayers.Clear();
-        Multiplayer.MultiplayerPeer.DisconnectPeer(Multiplayer.GetUniqueId());
-        isMultiplayer = false;
-        ConfirmUI.Instance.ShowConfirm("Disconnected from lobby.");
+        Multiplayer.MultiplayerPeer.Close();
+        Multiplayer.MultiplayerPeer=null;
+        isMultiplayer = false; 
 
 
     }

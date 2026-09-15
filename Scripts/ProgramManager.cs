@@ -49,27 +49,9 @@ public partial class ProgramManager : Node
             
         }
     }
-    bool isHosting=false;
-    bool isJoined=false;
     public override void _Input(InputEvent e)
-    {/*
-        if (e is InputEventKey key1)
-        {
-            if (key1.Keycode.Equals(Key.H) && key1.IsReleased())
-            {
-                if (isHosting) return;
-                isHosting = true;
-                isJoined = true;
-                NetworkManager.instance.HostLocalServer();
-            }
-            if (key1.Keycode.Equals(Key.J) && key1.IsReleased())
-            {
-                if (isJoined) return;
-                isHosting = true;
-                isJoined = true;
-                NetworkManager.instance.JoinLocalServer();
-            }
-        }*/
+    {
+        MultiplayerTest(e);
         if (spawnedCharacters.Count == 0) return;
         if (CharacterManager.instance.Visible) return;
         
@@ -115,6 +97,25 @@ public partial class ProgramManager : Node
             
         }
     }
+
+    private void MultiplayerTest(InputEvent e)
+    {
+        if (e is InputEventKey key1)
+        {
+            if (key1.Keycode.Equals(Key.H) && key1.IsReleased())
+            {
+                if (NetworkManager.isHost) return;
+                NetworkManager.instance.HostLocalServer();
+            }
+            if (key1.Keycode.Equals(Key.J) && key1.IsReleased())
+            {
+                if (NetworkManager.isMultiplayer) return;
+                NetworkManager.instance.JoinLocalServer();
+            }
+             
+        }
+    }
+
     void SelectCharacter(Vector2 pos)
     {
         selectedCharacter = spawnedCharacters.Where(c => c.InSelectionZone(pos) && !c.isEditor).OrderBy(e=>e.data.layer).LastOrDefault();

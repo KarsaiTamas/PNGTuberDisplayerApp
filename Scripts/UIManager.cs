@@ -330,7 +330,7 @@ public partial class UIManager : Node
     #region CharacterUI
     public void CharacterOutfitToggle(Character character,bool isVisible)
     {
-        character.deleteCharacterFromScene.Visible = isVisible;
+        character.deleteCharacterFromScene.Visible = character.isLocal && isVisible || NetworkManager.isHost && isVisible;
         character.selectedOutfit.Visible = isVisible;
         character.uiVisible = isVisible;
     }
